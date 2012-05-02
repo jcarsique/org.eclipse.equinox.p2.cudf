@@ -5,9 +5,11 @@ public class SolverConfiguration {
 
     public static final String OBJ_TRENDY = "trendy";
 
+    public static final String OBJ_P2 = "p2";
+
     public boolean verbose = false;
 
-    public String objective = "p2";
+    public String objective = OBJ_P2;
 
     public String timeout = "default";
 
