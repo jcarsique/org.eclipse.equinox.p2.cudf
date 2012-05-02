@@ -1,0 +1,16 @@
+package: python
+version: 16
+depends: b
+conflicts: a, python-xmlbase--virtual
+provides: python-xmlbase--virtual
+
+package: b
+version: 1
+
+package: a
+version: 1
+installed: true
+
+request: 
+install: python
+expected: 2

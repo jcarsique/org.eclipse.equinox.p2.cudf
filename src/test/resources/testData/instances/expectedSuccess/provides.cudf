@@ -1,0 +1,14 @@
+package: a
+version: 1
+provides: foo
+
+package: b
+version: 1
+depends: foo > 2
+
+package: c
+version: 1
+depends: foo < 2
+
+request: 
+install: b, c

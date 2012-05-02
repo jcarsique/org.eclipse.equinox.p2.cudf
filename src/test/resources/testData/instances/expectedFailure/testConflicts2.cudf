@@ -1,0 +1,13 @@
+package: X
+version: 1
+depends: B = 1
+
+package: Y
+version: 1
+depends: B != 1
+
+package: B
+version: 1
+
+request: 
+install: X, Y

@@ -1,0 +1,15 @@
+#PASS - package a should be installed
+package: a
+version: 1
+installed: true
+
+package: a
+version: 2
+
+package: a
+version: 3
+
+request: 
+install: a >= 3
+remove: a <= 2
+expected: 1

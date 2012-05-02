@@ -1,0 +1,146 @@
+preamble: 
+property: installedsize: nat = [0], size: nat = [0], sourceversion: string, source: string, number: string
+
+package: dpkg
+version: 26
+depends: libc6 >= 5 , coreutils >= 12 , lzma
+conflicts: dpkg , emacs21 < 2 , emacs21-nox < 1 , emacs22 <= 1 , emacs22-gtk <= 1 , emacs22-nox <= 1 , jed < 1 , jed-extra <= 2 , konqueror <= 3 , pinfo < 1 , tkinfo < 1 , xemacs21-support < 2 , xjed < 1 , apt < 9 , aptitude < 3 , dpkg-dev < 13 , dpkg-iasearch < 1 , sysvinit < 1
+installed: true
+number: 1.15.5.2
+source: dpkg
+sourceversion: 1.15.5.2
+installedsize: 6684
+
+package: libtext-wrapi18n-perl
+version: 1
+depends: libtext-charwidth-perl
+conflicts: libtext-wrapi18n-perl
+installed: true
+number: 0.06-7
+source: libtext-wrapi18n-perl
+sourceversion: 0.06-7
+installedsize: 28
+
+package: libattr1
+version: 4
+depends: libc6 >= 1
+conflicts: libattr1 , attr < 1
+installed: true
+number: 1:2.4.44-1
+source: attr
+sourceversion: 1:2.4.44-1
+installedsize: 40
+
+package: perl-base
+version: 17
+depends: libc6 >= 8 , dpkg >= 21
+conflicts: perl-base , autoconf2.13 < 1 , libscalar-list-utils-perl < 2 , libxsloader-perl < 1
+provides: libscalar-list-utils-perl--virtual , libxsloader-perl--virtual , perl5-base--virtual , perlapi-5.10.0--virtual , perlapi-5.10.1--virtual
+installed: true
+number: 5.10.1-7
+source: perl
+sourceversion: 5.10.1-7
+installedsize: 4692
+
+package: libstdc++6
+version: 17
+depends: gcc-4.4-base = 4 , libc6 >= 3 , libgcc1 >= 13
+conflicts: libstdc++6 , scim < 2
+installed: true
+number: 4.4.2-3
+source: gcc-4.4
+sourceversion: 4.4.2-3
+installedsize: 1252
+
+package: coreutils
+version: 16
+depends: libacl1 >= 1 , libattr1 >= 3 , libc6 >= 11 , libselinux1 >= 2
+conflicts: coreutils , timeout
+installed: true
+number: 8.0-2
+source: coreutils
+sourceversion: 8.0-2
+installedsize: 11792
+
+package: libc6
+version: 20
+depends: libc-bin = 1 , libgcc1
+conflicts: libc6 , nscd < 2 , tzdata < 2 , tzdata-etch
+provides: glibc-2.10-1--virtual
+installed: true
+number: 2.10.1-7
+source: eglibc
+sourceversion: 2.10.1-7
+installedsize: 9928
+
+package: libacl1
+version: 2
+depends: libattr1 >= 3 , libc6 >= 1
+conflicts: libacl1 , acl < 1 , libacl1-kerberos4kth
+installed: true
+number: 2.2.48-1
+source: acl
+sourceversion: 2.2.48-1
+installedsize: 80
+
+package: lzma
+version: 2
+depends: libc6 >= 15 , libgcc1 >= 3 , libstdc++6 >= 9
+conflicts: lzma
+installed: true
+number: 4.43-14
+source: lzma
+sourceversion: 4.43-14
+installedsize: 172
+
+package: libc-bin
+version: 1
+conflicts: libc-bin , libc0.1 < 1 , libc0.3 < 1 , libc6 < 17 , libc6.1 < 1
+installed: true
+number: 2.10.1-7
+source: eglibc
+sourceversion: 2.10.1-7
+installedsize: 1588
+
+package: gcc-4.4-base
+version: 4
+conflicts: gcc-4.4-base
+installed: true
+number: 4.4.2-3
+source: gcc-4.4
+sourceversion: 4.4.2-3
+installedsize: 168
+
+package: libselinux1
+version: 13
+depends: libc6 >= 5
+conflicts: libselinux1
+installed: true
+number: 2.0.89-3
+source: libselinux
+sourceversion: 2.0.89-3
+installedsize: 292
+
+package: libtext-charwidth-perl
+version: 1
+depends: libc6 >= 1 , perl-base >= 12 , perlapi-5.10.0--virtual | perlapi-5.10.0
+conflicts: libtext-charwidth-perl
+installed: true
+number: 0.04-6
+source: libtext-charwidth-perl
+sourceversion: 0.04-6
+installedsize: 36
+
+package: libgcc1
+version: 15
+depends: gcc-4.4-base = 4 , libc6 >= 1
+conflicts: libgcc1
+installed: true
+number: 1:4.4.2-3
+source: gcc-4.4
+sourceversion: 4.4.2-3
+installedsize: 132
+
+request: 
+install: libtext-wrapi18n-perl
+expected: 14

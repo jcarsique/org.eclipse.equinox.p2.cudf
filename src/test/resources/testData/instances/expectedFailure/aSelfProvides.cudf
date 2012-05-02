@@ -1,0 +1,18 @@
+#FAIL because a and python are in conflict through python-xmlbase--virtual
+package: python
+version: 16
+depends: b
+conflicts: python-xmlbase--virtual
+provides: python-xmlbase--virtual
+
+package: b
+version: 1
+
+package: a
+version: 1
+provides: python-xmlbase--virtual
+installed: true
+
+request: 
+install: python, a
+expected: 2

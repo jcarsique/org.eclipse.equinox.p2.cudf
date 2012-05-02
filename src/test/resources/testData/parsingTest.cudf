@@ -1,0 +1,81 @@
+preamble: 
+property: installedsize: nat = [0], size: nat = [0], sourceversion: string, source: string, number: string
+
+package: negatedDepends
+version: 1
+depends: a != 2
+
+package: a
+version: 1
+depends: b >= 2 ,
+ c , d != 2 , e
+installed: true
+conflicts: f
+
+package: b
+installed: false
+version: 1
+depends: a >= 5 , 
+ c | d > 2, f >= 5
+conflicts: g
+
+package: libc-bin
+version: 1
+conflicts: libc-bin , libc0.1 < 1 , libc0.3 < 1 , libc6 < 17 , libc6.1 < 1
+installed: true
+number: 2.10.1-7
+source: eglibc
+sourceversion: 2.10.1-7
+installedsize: 1588
+
+package: libx11-data
+version: 1
+conflicts: libx11-data
+installed: true
+number: 2:1.2.2-1
+source: libx11
+sourceversion: 2:1.2.2-1
+installedsize: 2484
+
+package: libtext-charwidth-perl
+version: 1
+depends: libc6 >= 1 , perl-base >= 12 , perlapi-5.10.0--virtual | perlapi-5.10.0
+conflicts: libtext-charwidth-perl
+installed: true
+number: 0.04-6
+source: libtext-charwidth-perl
+sourceversion: 0.04-6
+installedsize: 36
+
+package: foo
+version: 1
+conflicts: x
+provides: x
+
+package: mergeDepends1
+version: 1
+depends: a > 1, a <= 3
+
+package: mergeDepends2
+version: 1
+depends: a <= 3, a > 1
+
+package: mergeDepends3
+version: 1
+depends: a < 1, a >= 3
+
+package: mergeDepends4
+version: 1
+depends: a > 1, b = 2, a <= 3
+
+package: mergeDepends5
+version: 1
+depends: a >= 1, a < 3
+
+package: testExceptionInConflicts
+version: 1
+conflicts: a != 1
+
+request: SAMPLE-DATA
+install: a
+

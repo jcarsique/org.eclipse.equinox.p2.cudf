@@ -1,0 +1,21 @@
+package: A
+version: 1
+installed: true
+
+package: A
+version: 2
+
+package: B
+version: 1
+
+package: B
+version: 2
+
+package: C
+version: 1
+
+package: C
+version: 2
+
+request: install B
+install: B

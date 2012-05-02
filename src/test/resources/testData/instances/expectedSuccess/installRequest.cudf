@@ -1,0 +1,15 @@
+#PASS - 3 versions are installed because, we always try to keep as much as possible from the previous state 
+
+package: a
+version: 1
+installed: true
+
+package: a
+version: 2
+
+package: a
+version: 3
+
+request: 
+install: a = 2, a = 3
+expected: 2

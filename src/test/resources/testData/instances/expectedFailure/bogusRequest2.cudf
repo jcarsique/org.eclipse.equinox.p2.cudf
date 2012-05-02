@@ -1,0 +1,17 @@
+#FAIL, install and upgrade are contradictory
+package: a
+version: 1
+installed: true
+conflicts: a
+
+package: a
+version: 2
+conflicts: a
+
+package: a
+version: 3
+conflicts: a
+
+request: 
+install: a = 2
+upgrade: a > 2

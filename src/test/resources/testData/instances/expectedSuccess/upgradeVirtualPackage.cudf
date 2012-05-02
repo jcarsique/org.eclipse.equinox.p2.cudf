@@ -1,0 +1,16 @@
+#PASS
+package: a
+version: 1
+installed: true
+provides: my-provide = 2
+
+package: b
+version: 2
+provides: my-provide = 2
+
+package: c
+version: 3
+
+request: 
+upgrade: my-provide
+expected: 1

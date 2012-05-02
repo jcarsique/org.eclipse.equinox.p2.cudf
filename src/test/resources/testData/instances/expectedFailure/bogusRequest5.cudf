@@ -1,0 +1,15 @@
+#FAIL. 
+
+package: a
+version: 1
+installed: true
+
+package: b
+version: 2
+
+package: c
+version: 3
+
+request: 
+install: a = 1, b > 3
+

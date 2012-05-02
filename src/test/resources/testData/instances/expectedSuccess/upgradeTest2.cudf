@@ -1,0 +1,8 @@
+#PASS - no-op
+package: a
+version: 1
+installed: true
+
+request: 
+upgrade: a
+expected: 1

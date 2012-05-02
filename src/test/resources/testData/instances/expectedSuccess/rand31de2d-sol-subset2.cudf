@@ -1,0 +1,52 @@
+package: gcc-4.4-base
+version: 4
+conflicts: gcc-4.4-base
+installed: true
+number: 4.4.2-3
+source: gcc-4.4
+sourceversion: 4.4.2-3
+installedsize: 168
+
+package: libc-bin
+version: 1
+conflicts: libc-bin , libc0.1 < 1 , libc0.3 < 1 , libc6 < 17 , libc6.1 < 1
+installed: true
+number: 2.10.1-7
+source: eglibc
+sourceversion: 2.10.1-7
+installedsize: 1588
+
+package: libc6
+version: 20
+depends: libc-bin = 1 , libgcc1
+conflicts: libc6 , nscd < 2 , tzdata < 2 , tzdata-etch
+provides: glibc-2.10-1--virtual
+installed: true
+number: 2.10.1-7
+source: eglibc
+sourceversion: 2.10.1-7
+installedsize: 9928
+
+package: libbz2-1.0
+version: 1
+depends: libc6 >= 2
+conflicts: libbz2-1.0
+installed: true
+number: 1.0.5-3
+source: bzip2
+sourceversion: 1.0.5-3
+installedsize: 92
+
+package: libgcc1
+version: 15
+depends: gcc-4.4-base = 4 , libc6 >= 1
+conflicts: libgcc1
+installed: true
+number: 1:4.4.2-3
+source: gcc-4.4
+sourceversion: 4.4.2-3
+installedsize: 132
+
+request: 
+expected: 5
+

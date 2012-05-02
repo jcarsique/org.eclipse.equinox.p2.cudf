@@ -1,0 +1,15 @@
+#PASS
+package: a
+version: 1
+installed: true
+
+package: a
+version: 2
+
+package: a
+version: 3
+depends: missing
+
+request: 
+upgrade: a
+expected: 1

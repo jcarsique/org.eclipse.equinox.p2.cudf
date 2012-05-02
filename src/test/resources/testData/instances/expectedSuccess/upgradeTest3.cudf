@@ -1,0 +1,17 @@
+#PASS
+package: a
+version: 1
+conflicts: a
+
+package: a
+version: 2
+installed: true
+conflicts: a
+
+package: a
+version: 3
+conflicts: a
+
+request: 
+upgrade: a > 1
+expected: 1

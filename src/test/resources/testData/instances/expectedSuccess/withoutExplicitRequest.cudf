@@ -1,0 +1,21 @@
+preamble: 
+property: installedsize: nat = [0], size: nat = [0], sourceversion: string, source: string, number: string
+
+package: a
+version: 1
+provides: x=1
+keep: feature
+
+package: a
+version: 2
+
+package: c
+version: 1
+depends: foo
+
+package: d
+version: 1
+provides: x=1
+
+request: 
+

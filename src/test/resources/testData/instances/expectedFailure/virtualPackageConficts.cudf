@@ -1,0 +1,13 @@
+package: a
+version: 1
+provides: virtual-foo
+conflicts: virtual-foo
+
+package: b
+version: 1
+provides: virtual-foo
+conflicts: virtual-foo
+
+request: 
+install: a, b
+
