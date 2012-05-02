@@ -8,7 +8,7 @@ import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.solver.*;
 
 //DISABLED - Made the class abstract to have the tests passing
-public abstract class TestInstallRequestExample extends TestCase {
+public class TestInstallRequestExample extends TestCase {
     private ProfileChangeRequest pcr = null;
 
     protected void setUp() throws Exception {
@@ -22,7 +22,7 @@ public abstract class TestInstallRequestExample extends TestCase {
         Object result = new SimplePlanner().getSolutionFor(pcr, configuration);
         if (result instanceof Collection) {
             Collection col = (Collection) result;
-            assertEquals(col.toString(), 2, col.size());
+            assertEquals(col.toString(), 3, col.size());
         } else {
             fail("No result found!");
         }
@@ -46,7 +46,7 @@ public abstract class TestInstallRequestExample extends TestCase {
         Object result = new SimplePlanner().getSolutionFor(pcr, configuration);
         if (result instanceof Collection) {
             Collection col = (Collection) result;
-            assertEquals(col.toString(), 2, col.size());
+            assertEquals(col.toString(), 3, col.size());
         } else {
             fail("No result found!");
         }

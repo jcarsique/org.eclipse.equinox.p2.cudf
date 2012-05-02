@@ -32,4 +32,18 @@ public class SolverConfiguration {
             boolean verbose, boolean explain) {
         this(objective, timeout, verbose, explain, false);
     }
+
+    /**
+     * @since 1.14
+     */
+    public SolverConfiguration() {
+        this(null, null, false, false);
+    }
+
+    /**
+     * @since 1.14
+     */
+    public SolverConfiguration(String objective) {
+        this(objective, null, false, false);
+    }
 }

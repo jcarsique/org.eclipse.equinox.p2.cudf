@@ -13,72 +13,91 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.equinox.p2.cudf.Log;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
+import org.eclipse.equinox.p2.cudf.solver.OptimizationFunction.Criteria;
 import org.sat4j.pb.IPBSolver;
 
 public class SimplePlanner {
-	private final static boolean PURGE = true;
-	private Projector projector;
+    private final static boolean PURGE = true;
 
-	public Object getSolutionFor(ProfileChangeRequest profileChangeRequest, SolverConfiguration configuration) {
-		QueryableArray profile = profileChangeRequest.getInitialState();
+    private Projector projector;
 
-		InstallableUnit updatedPlan = updatePlannerInfo(profileChangeRequest);
+    public Object getSolutionFor(ProfileChangeRequest profileChangeRequest,
+            SolverConfiguration configuration) {
+        QueryableArray profile = profileChangeRequest.getInitialState();
 
-		Slicer slice = new Slicer(profile);
-		profile = slice.slice(updatedPlan, configuration.objective.equals("p2") ? null : profileChangeRequest.getExtraRequirements());
-		if (PURGE) {
-			Log.println("Number of  packages after slice: " + profile.getSize());
-			if (profileChangeRequest.getInitialState().getSize() != 0)
-				Log.println("Slice efficiency: " + (100 - ((profile.getSize() - 1) * 100) / profileChangeRequest.getInitialState().getSize()) + "%");
-			profileChangeRequest.purge();
+        InstallableUnit updatedPlan = updatePlannerInfo(profileChangeRequest);
 
-		}
-		projector = new Projector(profile);
-		projector.encode(updatedPlan, configuration);
-		IStatus s = projector.invokeSolver();
-		if (s.getSeverity() == IStatus.ERROR) {
-			return s;
-		}
-		return projector.extractSolution();
-	}
+        Slicer slice = new Slicer(profile);
+        profile = slice.slice(updatedPlan,
+                configuration.objective.equals("p2") ? null
+                        : profileChangeRequest.getExtraRequirements());
+        if (PURGE) {
+            Log.println("Number of  packages after slice: " + profile.getSize());
+            if (profileChangeRequest.getInitialState().getSize() != 0)
+                Log.println("Slice efficiency: "
+                        + (100 - ((profile.getSize() - 1) * 100)
+                                / profileChangeRequest.getInitialState().getSize())
+                        + "%");
+            profileChangeRequest.purge();
 
-	private InstallableUnit updatePlannerInfo(ProfileChangeRequest profileChangeRequest) {
-		return createIURepresentingTheProfile(profileChangeRequest.getAllRequests());
-	}
+        }
+        projector = new Projector(profile);
+        projector.encode(updatedPlan, configuration);
+        IStatus s = projector.invokeSolver();
+        if (s.getSeverity() == IStatus.ERROR) {
+            return s;
+        }
+        return projector.extractSolution();
+    }
 
-	private InstallableUnit createIURepresentingTheProfile(ArrayList allRequirements) {
-		InstallableUnit iud = new InstallableUnit();
-		String time = Long.toString(System.currentTimeMillis());
-		iud.setId(time);
-		iud.setVersion(new Version(0, 0, 0, time));
-		iud.setRequiredCapabilities((IRequiredCapability[]) allRequirements.toArray(new IRequiredCapability[allRequirements.size()]));
-		Log.println("Request size: " + iud.getRequiredCapabilities().length);
-		return iud;
-	}
+    private InstallableUnit updatePlannerInfo(
+            ProfileChangeRequest profileChangeRequest) {
+        return createIURepresentingTheProfile(profileChangeRequest.getAllRequests());
+    }
 
-	public void stopSolver() {
-		if (projector != null) {
-			projector.stopSolver();
-		}
-	}
+    private InstallableUnit createIURepresentingTheProfile(
+            ArrayList allRequirements) {
+        InstallableUnit iud = new InstallableUnit();
+        String time = Long.toString(System.currentTimeMillis());
+        iud.setId(time);
+        iud.setVersion(new Version(0, 0, 0, time));
+        iud.setRequiredCapabilities((IRequiredCapability[]) allRequirements.toArray(new IRequiredCapability[allRequirements.size()]));
+        Log.println("Request size: " + iud.getRequiredCapabilities().length);
+        return iud;
+    }
 
-	public Collection getBestSolutionFoundSoFar() {
-		return projector.getBestSolutionFoundSoFar();
-	}
+    public void stopSolver() {
+        if (projector != null) {
+            projector.stopSolver();
+        }
+    }
 
-	public Set getExplanation() {
-		return projector.getExplanation();
-	}
+    public Collection getBestSolutionFoundSoFar() {
+        return projector.getBestSolutionFoundSoFar();
+    }
 
-	public IPBSolver getSolver() {
-		return projector.dependencyHelper.getSolver();
-	}
+    public Set getExplanation() {
+        return projector.getExplanation();
+    }
 
-	public Map getMappingToDomain() {
-		return projector.dependencyHelper.getMappingToDomain();
-	}
+    public IPBSolver getSolver() {
+        return projector.dependencyHelper.getSolver();
+    }
 
-	public boolean isSolutionOptimal() {
-		return projector.dependencyHelper.isOptimal();
-	}
+    public Map getMappingToDomain() {
+        return projector.dependencyHelper.getMappingToDomain();
+    }
+
+    public boolean isSolutionOptimal() {
+        return projector.dependencyHelper.isOptimal();
+    }
+
+    /**
+     * @since 1.14
+     * @return a map of IU lists in the solution, per {@link Criteria}
+     */
+    public Map<Criteria, List<String>> getSolutionDetails() {
+        return projector.getSolutionDetails();
+    }
+
 }

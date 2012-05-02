@@ -15,10 +15,10 @@ import java.io.PrintWriter;
 import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.equinox.p2.cudf.Log;
-import org.eclipse.equinox.p2.cudf.Main;
+import org.eclipse.equinox.p2.cudf.*;
 import org.eclipse.equinox.p2.cudf.metadata.*;
 import org.eclipse.equinox.p2.cudf.query.*;
+import org.eclipse.equinox.p2.cudf.solver.OptimizationFunction.Criteria;
 import org.eclipse.osgi.util.NLS;
 import org.sat4j.minisat.restarts.LubyRestarts;
 import org.sat4j.pb.*;
@@ -198,7 +198,20 @@ public class Projector {
 
     private OptimizationFunction getOptimizationFactory(String optFunctionName) {
         OptimizationFunction function = null;
-        function = new UserDefinedOptimizationFunction(optFunctionName);
+        // Following Main class behavior, always fallback on
+        // UserDefinedOptimizationFunction with corresponding parameters
+        if (SolverConfiguration.OBJ_P2.equals(optFunctionName)) {
+            // function = new P2OptimizationFunction();
+            function = new UserDefinedOptimizationFunction(optFunctionName);
+        } else if (SolverConfiguration.OBJ_PARANOID.equals(optFunctionName)) {
+            // function = new ParanoidOptimizationFunction();
+            function = new UserDefinedOptimizationFunction(Options.PARANOID);
+        } else if (SolverConfiguration.OBJ_TRENDY.equals(optFunctionName)) {
+            // function = new TrendyOptimizationFunction();
+            function = new UserDefinedOptimizationFunction(Options.TRENDY);
+        } else {
+            function = new UserDefinedOptimizationFunction(optFunctionName);
+        }
         Log.println("Optimization function: " + function.getName());
         function.slice = slice;
         function.noopVariables = noopVariables;
@@ -559,5 +572,15 @@ public class Projector {
         if (solution == null)
             return null;
         return extractSolution();
+    }
+
+    /**
+     * @since 1.14
+     */
+    public Map<Criteria, List<String>> getSolutionDetails() {
+        if (getBestSolutionFoundSoFar() == null) {
+            return null;
+        }
+        return optFunction.getSolutionDetails();
     }
 }
