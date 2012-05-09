@@ -10,6 +10,8 @@ package org.eclipse.equinox.p2.cudf.solver;
 
 import java.math.BigInteger;
 import java.util.*;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 
 //	TRENDY:   we want to answer the user request, minimizing the number
@@ -28,65 +30,68 @@ import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 //        r1 < r2 or (r1=r2 and (u1>u2 or (u1=u2 and n1<n2)))
 
 public class TrendyOptimizationFunction extends OptimizationFunction {
+    private static final Log log = LogFactory.getLog(TrendyOptimizationFunction.class);
 
-	public List createOptimizationFunction(InstallableUnit metaIu) {
-		List weightedObjects = new ArrayList();
-		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
-		removed(weightedObjects, weight.multiply(weight).multiply(weight), metaIu);
-		notuptodate(weightedObjects, weight.multiply(weight), metaIu);
-		optional(weightedObjects, weight, metaIu);
-		niou(weightedObjects, BigInteger.ONE, metaIu);
-		if (!weightedObjects.isEmpty()) {
-			return weightedObjects;
-		}
-		return null;
-	}
+    public List createOptimizationFunction(InstallableUnit metaIu) {
+        List weightedObjects = new ArrayList();
+        BigInteger weight = BigInteger.valueOf(slice.size() + 1);
+        removed(weightedObjects, weight.multiply(weight).multiply(weight),
+                metaIu);
+        notuptodate(weightedObjects, weight.multiply(weight), metaIu);
+        optional(weightedObjects, weight, metaIu);
+        niou(weightedObjects, BigInteger.ONE, metaIu);
+        if (!weightedObjects.isEmpty()) {
+            return weightedObjects;
+        }
+        return null;
+    }
 
-	public String getName() {
-		return "misc 2010, trendy";
-	}
+    public String getName() {
+        return "misc 2010, trendy";
+    }
 
-	public void printSolutionValue() {
-		int removed = 0, notUpToDate = 0, recommends = 0, niou = 0;
-		List proof = new ArrayList();
+    public void printSolutionValue() {
+        int removed = 0, notUpToDate = 0, recommends = 0, niou = 0;
+        List proof = new ArrayList();
 
-		for (int i = 0; i < removalVariables.size(); i++) {
-			Object var = removalVariables.get(i);
-			if (dependencyHelper.getBooleanValueFor(var)) {
-				removed++;
-				proof.add(var.toString().substring(18));
-			}
-		}
-		System.out.println("# Removed packages: " + proof);
-		proof.clear();
-		for (int i = 0; i < nouptodateVariables.size(); i++) {
-			Object var = nouptodateVariables.get(i);
-			if (dependencyHelper.getBooleanValueFor(var)) {
-				notUpToDate++;
-				proof.add(var.toString().substring(18));
-			}
-		}
-		System.out.println("# Not up-to-date packages: " + proof);
-		proof.clear();
-		for (Iterator it = unmetVariables.iterator(); it.hasNext();) {
-			Object var = it.next();
-			if (dependencyHelper.getBooleanValueFor(var)) {
-				recommends++;
-				proof.add(var.toString().substring(18));
-			}
-		}
-		System.out.println("# Not installed recommended packages: " + proof);
-		proof.clear();
-		for (int i = 0; i < newVariables.size(); i++) {
-			Object var = newVariables.get(i);
-			if (dependencyHelper.getBooleanValueFor(var)) {
-				niou++;
-				proof.add(var.toString().substring(18));
-			}
-		}
-		System.out.println("# Newly installed packages: " + proof);
-		proof.clear();
-		System.out.println("# Trendy criteria value: -" + removed + ", -" + notUpToDate + ", -" + recommends + ", -" + niou);
+        for (int i = 0; i < removalVariables.size(); i++) {
+            Object var = removalVariables.get(i);
+            if (dependencyHelper.getBooleanValueFor(var)) {
+                removed++;
+                proof.add(var.toString().substring(18));
+            }
+        }
+        log.info("# Removed packages: " + proof);
+        proof.clear();
+        for (int i = 0; i < nouptodateVariables.size(); i++) {
+            Object var = nouptodateVariables.get(i);
+            if (dependencyHelper.getBooleanValueFor(var)) {
+                notUpToDate++;
+                proof.add(var.toString().substring(18));
+            }
+        }
+        log.info("# Not up-to-date packages: " + proof);
+        proof.clear();
+        for (Iterator it = unmetVariables.iterator(); it.hasNext();) {
+            Object var = it.next();
+            if (dependencyHelper.getBooleanValueFor(var)) {
+                recommends++;
+                proof.add(var.toString().substring(18));
+            }
+        }
+        log.info("# Not installed recommended packages: " + proof);
+        proof.clear();
+        for (int i = 0; i < newVariables.size(); i++) {
+            Object var = newVariables.get(i);
+            if (dependencyHelper.getBooleanValueFor(var)) {
+                niou++;
+                proof.add(var.toString().substring(18));
+            }
+        }
+        log.info("# Newly installed packages: " + proof);
+        proof.clear();
+        log.info("# Trendy criteria value: -" + removed + ", -" + notUpToDate
+                + ", -" + recommends + ", -" + niou);
 
-	}
+    }
 }

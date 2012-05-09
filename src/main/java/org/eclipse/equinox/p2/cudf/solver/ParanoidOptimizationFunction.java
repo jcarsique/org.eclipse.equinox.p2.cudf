@@ -11,6 +11,8 @@ package org.eclipse.equinox.p2.cudf.solver;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 
 //	PARANOID: we want to answer the user request, minimizing the number
@@ -25,40 +27,41 @@ import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 //
 //    ii) S1 is better than S2 iff r1 < r2 or (r1=r2 and c1<c2)
 public class ParanoidOptimizationFunction extends OptimizationFunction {
+    private static final Log log = LogFactory.getLog(ParanoidOptimizationFunction.class);
 
-	public List createOptimizationFunction(InstallableUnit metaIu) {
-		List weightedObjects = new ArrayList();
-		BigInteger weight = BigInteger.valueOf(slice.size() + 1);
-		removed(weightedObjects, weight, metaIu);
-		changed(weightedObjects, BigInteger.ONE, metaIu);
-		if (!weightedObjects.isEmpty()) {
-			return weightedObjects;
-		}
-		return null;
-	}
+    public List createOptimizationFunction(InstallableUnit metaIu) {
+        List weightedObjects = new ArrayList();
+        BigInteger weight = BigInteger.valueOf(slice.size() + 1);
+        removed(weightedObjects, weight, metaIu);
+        changed(weightedObjects, BigInteger.ONE, metaIu);
+        if (!weightedObjects.isEmpty()) {
+            return weightedObjects;
+        }
+        return null;
+    }
 
-	public String getName() {
-		return "misc 2010 paranoid";
-	}
+    public String getName() {
+        return "misc 2010 paranoid";
+    }
 
-	public void printSolutionValue() {
-		int removed = 0, changed = 0;
-		List proof = new ArrayList();
-		for (int i = 0; i < removalVariables.size(); i++) {
-			Object var = removalVariables.get(i);
-			if (dependencyHelper.getBooleanValueFor(var)) {
-				removed++;
-				proof.add(var);
-			}
-		}
-		for (int i = 0; i < changeVariables.size(); i++) {
-			Object var = changeVariables.get(i);
-			if (dependencyHelper.getBooleanValueFor(var)) {
-				changed++;
-				proof.add(var);
-			}
-		}
-		System.out.println("# Paranoid criteria value: -" + removed + ", -" + changed);
-		System.out.println("# Proof: " + proof);
-	}
+    public void printSolutionValue() {
+        int removed = 0, changed = 0;
+        List proof = new ArrayList();
+        for (int i = 0; i < removalVariables.size(); i++) {
+            Object var = removalVariables.get(i);
+            if (dependencyHelper.getBooleanValueFor(var)) {
+                removed++;
+                proof.add(var);
+            }
+        }
+        for (int i = 0; i < changeVariables.size(); i++) {
+            Object var = changeVariables.get(i);
+            if (dependencyHelper.getBooleanValueFor(var)) {
+                changed++;
+                proof.add(var);
+            }
+        }
+        log.info("# Paranoid criteria value: -" + removed + ", -" + changed);
+        log.info("# Proof: " + proof);
+    }
 }
