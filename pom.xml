@@ -100,7 +100,8 @@
           <artifactId>org.eclipse.equinox.common</artifactId>
         </exclusion>
       </exclusions>
-
+      <!-- Only needed if using org.eclipse.equinox.p2.cudf.solver.SimplePlanner.getExplanation() -->
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.eclipse.equinox</groupId>
@@ -112,11 +113,6 @@
           <artifactId>org.eclipse.osgi</artifactId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>osgi-core</artifactId>
-      <version>4.1</version>
     </dependency>
 
     <dependency>
@@ -143,20 +139,50 @@
           <target>1.6</target>
         </configuration>
       </plugin>
-      <!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-shade-plugin</artifactId> 
-        <version>1.4</version> <executions> <execution> <phase>package</phase> <goals> 
-        <goal>shade</goal> </goals> <configuration> <shadedArtifactAttached>false</shadedArtifactAttached> 
-        <artifactSet> <excludes> <exclude>org.eclipse.core:org.eclipse.core.jobs</exclude> 
-        <exclude>org.eclipse.osgi:org.eclipse.osgi</exclude> </excludes> </artifactSet> 
-        <filters> <filter> <artifact>org.eclipse.equinox:org.eclipse.equinox.common</artifact> 
-        <includes> <include>org/eclipse/core/runtime/OperationCanceledException.class</include> 
-        <include>org/eclipse/core/runtime/IProgressMonitor.class</include> <include>org/eclipse/core/runtime/IStatus.class</include> 
-        <include>org/eclipse/core/runtime/MultiStatus.class</include> <include>org/eclipse/core/runtime/NullProgressMonitor.class</include> 
-        <include>org/eclipse/core/runtime/Status.class</include> <include>org/eclipse/core/internal/runtime/LocalizationUtils.class</include> 
-        <include>org/eclipse/core/runtime/Assert.class</include> <include>org/eclipse/core/runtime/AssertionFailedException.class</include> 
-        </includes> </filter> </filters> <transformers> <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> 
-        <mainClass>org.eclipse.equinox.p2.cudf.Main</mainClass> </transformer> </transformers> 
-        </configuration> </execution> </executions> </plugin> -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
+              <artifactSet>
+                <excludes>
+                  <exclude>org.eclipse.core:org.eclipse.core.jobs</exclude>
+                </excludes>
+              </artifactSet>
+              <filters>
+                <filter>
+                  <artifact>org.eclipse.equinox:org.eclipse.equinox.common</artifact>
+                  <includes>
+                    <include>org/eclipse/core/runtime/OperationCanceledException.class</include>
+                    <include>org/eclipse/core/runtime/IProgressMonitor.class</include>
+                    <include>org/eclipse/core/runtime/IStatus.class</include>
+                    <include>org/eclipse/core/runtime/MultiStatus.class</include>
+                    <include>org/eclipse/core/runtime/NullProgressMonitor.class</include>
+                    <include>org/eclipse/core/runtime/Status.class</include>
+                    <include>org/eclipse/core/internal/runtime/LocalizationUtils.class</include>
+                    <include>org/eclipse/core/runtime/Assert.class</include>
+                    <include>org/eclipse/core/runtime/AssertionFailedException.class</include>
+                  </includes>
+                </filter>
+              </filters>
+              <transformers>
+                <transformer
+                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>org.eclipse.equinox.p2.cudf.Main</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 </project>
