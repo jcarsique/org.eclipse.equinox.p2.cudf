@@ -100,7 +100,7 @@ public class Main {
     private static final void usage() {
         System.out.println("Usage: p2cudf [flags] inputFile [outputFile]");
         System.out.println("-obj paranoid|trendy|<user defined>   The objective function to be used to resolve the problem.");
-        System.out.println("                                      Users can define their own: +new,-changed,-notuptodate,-unsat_recommends,-removed,-sum(installedsize)");
+        System.out.println("                                      Users can define their own: -new,-changed,-notuptodate,-unsat_recommends,-removed,-sum(installedsize)");
         System.out.println("-timeout <number>(c|s)                The time out after which the solver will stop. e.g. 10s stops after 10 seconds, 10c stops after 10 conflicts. Default is set to 200c for p2 and 2000c for other objective functions.");
         System.out.println("-sort                                 Sort the output.");
         System.out.println("-explain                              Provides one reason of the inability to fulfill the request");
@@ -300,7 +300,7 @@ public class Main {
             InstallableUnit iu = (InstallableUnit) iterator.next();
             out.println("package: " + iu.getId());
             out.println("version: " + iu.getVersion().getMajor());
-            out.println("installed: true");
+            out.println("installed: " + iu.isInstalled());
             out.println();
         }
     }

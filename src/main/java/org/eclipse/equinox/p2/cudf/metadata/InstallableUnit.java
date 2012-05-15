@@ -4,143 +4,146 @@
  *  are made available under the terms of the Eclipse Public License v1.0
  *  which accompanies this distribution, and is available at
  *  http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  *  Contributors:
  *     IBM Corporation - initial API and implementation
  *     Genuitec, LLC - added license support
  *******************************************************************************/
 package org.eclipse.equinox.p2.cudf.metadata;
 
-public class InstallableUnit implements Comparable {
+public class InstallableUnit implements Comparable<InstallableUnit> {
 
-	public static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
-	public static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
-	public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iu"; //$NON-NLS-1$
+    public static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
 
-	private String id;
-	private Version version;
+    public static final IRequiredCapability[] NO_REQUIRES = new IRequiredCapability[0];
 
-	IProvidedCapability[] providedCapabilities = NO_PROVIDES;
-	private IRequiredCapability[] requires = NO_REQUIRES;
+    public static final String NAMESPACE_IU_ID = "org.eclipse.equinox.p2.iu"; //$NON-NLS-1$
 
-	private boolean singleton;
-	private boolean installed;
+    private String id;
 
-	private long sumProperty;
+    private Version version;
 
-	public InstallableUnit() {
-		super();
-	}
+    IProvidedCapability[] providedCapabilities = NO_PROVIDES;
 
-	public int compareTo(Object toCompareTo) {
-		if (!(toCompareTo instanceof InstallableUnit)) {
-			return -1;
-		}
-		InstallableUnit other = (InstallableUnit) toCompareTo;
-		if (getId().compareTo(other.getId()) == 0)
-			return (getVersion().compareTo(other.getVersion()));
-		return getId().compareTo(other.getId());
-	}
+    private IRequiredCapability[] requires = NO_REQUIRES;
 
-	public String getId() {
-		return id;
-	}
+    private boolean singleton;
 
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof InstallableUnit))
-			return false;
-		final InstallableUnit other = (InstallableUnit) obj;
-		if (id == null) {
-			if (other.getId() != null)
-				return false;
-		} else if (!id.equals(other.getId()))
-			return false;
-		if (getVersion() == null) {
-			if (other.getVersion() != null)
-				return false;
-		} else if (!getVersion().equals(other.getVersion()))
-			return false;
-		return true;
-	}
+    private boolean installed;
 
-	public IProvidedCapability[] getProvidedCapabilities() {
-		return providedCapabilities;
-	}
+    private long sumProperty;
 
-	public IRequiredCapability[] getRequiredCapabilities() {
-		return requires;
+    public InstallableUnit() {
+        super();
+    }
 
-	}
+    public int compareTo(InstallableUnit toCompareTo) {
+        InstallableUnit other = toCompareTo;
+        if (getId().compareTo(other.getId()) == 0)
+            return (getVersion().compareTo(other.getVersion()));
+        return getId().compareTo(other.getId());
+    }
 
-	public Version getVersion() {
-		return version;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((getVersion() == null) ? 0 : getVersion().hashCode());
-		return result;
-	}
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (!(obj instanceof InstallableUnit))
+            return false;
+        final InstallableUnit other = (InstallableUnit) obj;
+        if (id == null) {
+            if (other.getId() != null)
+                return false;
+        } else if (!id.equals(other.getId()))
+            return false;
+        if (getVersion() == null) {
+            if (other.getVersion() != null)
+                return false;
+        } else if (!getVersion().equals(other.getVersion()))
+            return false;
+        return true;
+    }
 
-	public boolean isResolved() {
-		return false;
-	}
+    public IProvidedCapability[] getProvidedCapabilities() {
+        return providedCapabilities;
+    }
 
-	public boolean isSingleton() {
-		return singleton;
-	}
+    public IRequiredCapability[] getRequiredCapabilities() {
+        return requires;
 
-	public void setCapabilities(IProvidedCapability[] newCapabilities) {
-		if (newCapabilities == null || newCapabilities.length == 0)
-			providedCapabilities = NO_PROVIDES;
-		else
-			providedCapabilities = newCapabilities;
-	}
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public Version getVersion() {
+        return version;
+    }
 
-	public void setRequiredCapabilities(IRequiredCapability[] capabilities) {
-		if (capabilities.length == 0) {
-			this.requires = NO_REQUIRES;
-		} else {
-			//copy array for safety
-			this.requires = (IRequiredCapability[]) capabilities.clone();
-		}
-	}
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result
+                + ((getVersion() == null) ? 0 : getVersion().hashCode());
+        return result;
+    }
 
-	public void setSingleton(boolean singleton) {
-		this.singleton = singleton;
-	}
+    public boolean isResolved() {
+        return false;
+    }
 
-	public void setVersion(Version newVersion) {
-		this.version = (newVersion != null ? newVersion : Version.emptyVersion);
-	}
+    public boolean isSingleton() {
+        return singleton;
+    }
 
-	public String toString() {
-		return id + ' ' + getVersion();
-	}
+    public void setCapabilities(IProvidedCapability[] newCapabilities) {
+        if (newCapabilities == null || newCapabilities.length == 0)
+            providedCapabilities = NO_PROVIDES;
+        else
+            providedCapabilities = newCapabilities;
+    }
 
-	public void setInstalled(boolean isInstalled) {
-		installed = isInstalled;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public boolean isInstalled() {
-		return installed;
-	}
+    public void setRequiredCapabilities(IRequiredCapability[] capabilities) {
+        if (capabilities.length == 0) {
+            this.requires = NO_REQUIRES;
+        } else {
+            // copy array for safety
+            this.requires = capabilities.clone();
+        }
+    }
 
-	public long getSumProperty() {
-		return sumProperty;
-	}
+    public void setSingleton(boolean singleton) {
+        this.singleton = singleton;
+    }
 
-	public void setSumProperty(long sumProperty) {
-		this.sumProperty = sumProperty;
-	}
+    public void setVersion(Version newVersion) {
+        this.version = (newVersion != null ? newVersion : Version.emptyVersion);
+    }
+
+    public String toString() {
+        return id + ' ' + getVersion();
+    }
+
+    public void setInstalled(boolean isInstalled) {
+        installed = isInstalled;
+    }
+
+    public boolean isInstalled() {
+        return installed;
+    }
+
+    public long getSumProperty() {
+        return sumProperty;
+    }
+
+    public void setSumProperty(long sumProperty) {
+        this.sumProperty = sumProperty;
+    }
 }

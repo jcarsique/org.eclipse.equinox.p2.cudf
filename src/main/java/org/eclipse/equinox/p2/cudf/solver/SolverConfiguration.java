@@ -7,6 +7,8 @@ public class SolverConfiguration {
 
     public static final String OBJ_P2 = "p2";
 
+    public static final String OBJ_ALL_CRITERIA = "-removed,-notuptodate,-unsat_recommends,-new,-changed,-versionchanged";
+
     public boolean verbose = false;
 
     public String objective = OBJ_P2;
