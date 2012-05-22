@@ -52,7 +52,7 @@
 
   <groupId>org.eclipse.equinox</groupId>
   <artifactId>org.eclipse.equinox.p2.cudf</artifactId>
-  <version>1.14</version>
+  <version>1.14-NX</version>
 
   <organization>
     <name>Eclipse</name>
@@ -64,6 +64,10 @@
       <url>https://oss.sonatype.org/</url>
     </repository>
   </repositories>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
   <dependencies>
     <!-- Fix dependency issue with org.sat4j.core:test-jar being included in compile
