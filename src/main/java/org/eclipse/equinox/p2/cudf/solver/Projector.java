@@ -267,14 +267,14 @@ public class Projector {
     private void expandNegatedRequirement(IRequiredCapability req,
             InstallableUnit iu, boolean isRootIu) throws ContradictionException {
         IRequiredCapability negatedReq = ((NotRequirement) req).getRequirement();
-        List<InstallableUnit> matches = getApplicableMatches(negatedReq);
+        List<AbstractVariable> matches = getApplicableMatches(negatedReq);
         matches.remove(iu);
         if (matches.isEmpty()) {
             return;
         }
         Explanation explanation;
         if (isRootIu) {
-            InstallableUnit reqIu = matches.iterator().next();
+            InstallableUnit reqIu = (InstallableUnit) matches.iterator().next();
             explanation = new Explanation.IUToInstall(reqIu);
         } else {
             explanation = new Explanation.HardRequirement(iu, req);
@@ -288,7 +288,7 @@ public class Projector {
             expandNegatedRequirement(req, iu, isRootIu);
             return;
         }
-        List<InstallableUnit> matches = getApplicableMatches(req);
+        List<AbstractVariable> matches = getApplicableMatches(req);
         if (!req.isOptional()) {
             if (matches.isEmpty()) {
                 missingRequirement(iu, req);
@@ -297,14 +297,14 @@ public class Projector {
                     createAtMostOne(matches.toArray(new InstallableUnit[matches.size()]));
                     return;
                 }
-                InstallableUnit reqIu = matches.iterator().next();
+                InstallableUnit reqIu = (InstallableUnit) matches.iterator().next();
                 Explanation explanation = new Explanation.IUToInstall(reqIu);
                 createImplication(iu, matches, explanation);
             }
         } else {
             AbstractVariable abs = getAbstractVariable(iu.toString() + "->"
                     + req.toString());
-            matches.add((InstallableUnit) abs);
+            matches.add(abs);
             createImplication(iu, matches, Explanation.OPTIONAL_REQUIREMENT);
             optionalityVariables.add(abs);
             optionalityPairs.add(new Pair(iu, abs));
@@ -343,8 +343,8 @@ public class Projector {
      * @return a list of mandatory requirements if any, an empty list if
      *         req.isOptional().
      */
-    private List<InstallableUnit> getApplicableMatches(IRequiredCapability req) {
-        List<InstallableUnit> target = new ArrayList<InstallableUnit>();
+    private List<AbstractVariable> getApplicableMatches(IRequiredCapability req) {
+        List<AbstractVariable> target = new ArrayList<AbstractVariable>();
         Collector matches = picker.query(new CapabilityQuery(req),
                 new Collector(), null);
         for (Iterator<?> iterator = matches.iterator(); iterator.hasNext();) {
@@ -357,12 +357,12 @@ public class Projector {
     // This will create as many implication as there is element in the right
     // argument
     private void createNegationImplication(InstallableUnit left,
-            List<InstallableUnit> right, Explanation name)
+            List<AbstractVariable> right, Explanation name)
             throws ContradictionException {
         if (DEBUG) {
             Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
         }
-        for (Iterator<InstallableUnit> iterator = right.iterator(); iterator.hasNext();) {
+        for (Iterator<AbstractVariable> iterator = right.iterator(); iterator.hasNext();) {
             dependencyHelper.implication(new Object[] { left }).impliesNot(
                     iterator.next()).named(name.toString());
         }
@@ -370,7 +370,7 @@ public class Projector {
     }
 
     private void createImplication(InstallableUnit left,
-            List<InstallableUnit> right, Explanation name)
+            List<AbstractVariable> right, Explanation name)
             throws ContradictionException {
         if (DEBUG) {
             Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
