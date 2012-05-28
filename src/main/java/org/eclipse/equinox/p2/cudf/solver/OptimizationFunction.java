@@ -45,7 +45,7 @@ public abstract class OptimizationFunction {
 
     public abstract List createOptimizationFunction(InstallableUnit metaIu);
 
-    public abstract void printSolutionValue();
+    public abstract String printSolutionValue();
 
     /**
      * @since 1.14

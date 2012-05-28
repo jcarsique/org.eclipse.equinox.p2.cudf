@@ -50,7 +50,8 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
         return "misc 2010, trendy";
     }
 
-    public void printSolutionValue() {
+    public String printSolutionValue() {
+        StringBuilder sb = new StringBuilder();
         int removed = 0, notUpToDate = 0, recommends = 0, niou = 0;
         List proof = new ArrayList();
 
@@ -61,7 +62,7 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
                 proof.add(var.toString().substring(18));
             }
         }
-        log.info("# Removed packages: " + proof);
+        sb.append("# Removed packages: " + proof);
         proof.clear();
         for (int i = 0; i < nouptodateVariables.size(); i++) {
             Object var = nouptodateVariables.get(i);
@@ -70,7 +71,7 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
                 proof.add(var.toString().substring(18));
             }
         }
-        log.info("# Not up-to-date packages: " + proof);
+        sb.append("# Not up-to-date packages: " + proof);
         proof.clear();
         for (Iterator it = unmetVariables.iterator(); it.hasNext();) {
             Object var = it.next();
@@ -79,7 +80,7 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
                 proof.add(var.toString().substring(18));
             }
         }
-        log.info("# Not installed recommended packages: " + proof);
+        sb.append("# Not installed recommended packages: " + proof);
         proof.clear();
         for (int i = 0; i < newVariables.size(); i++) {
             Object var = newVariables.get(i);
@@ -88,10 +89,10 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
                 proof.add(var.toString().substring(18));
             }
         }
-        log.info("# Newly installed packages: " + proof);
+        sb.append("# Newly installed packages: " + proof);
         proof.clear();
-        log.info("# Trendy criteria value: -" + removed + ", -" + notUpToDate
+        sb.append("# Trendy criteria value: -" + removed + ", -" + notUpToDate
                 + ", -" + recommends + ", -" + niou);
-
+        return sb.toString();
     }
 }

@@ -44,7 +44,8 @@ public class ParanoidOptimizationFunction extends OptimizationFunction {
         return "misc 2010 paranoid";
     }
 
-    public void printSolutionValue() {
+    public String printSolutionValue() {
+        StringBuilder sb = new StringBuilder();
         int removed = 0, changed = 0;
         List proof = new ArrayList();
         for (int i = 0; i < removalVariables.size(); i++) {
@@ -61,7 +62,8 @@ public class ParanoidOptimizationFunction extends OptimizationFunction {
                 proof.add(var);
             }
         }
-        log.info("# Paranoid criteria value: -" + removed + ", -" + changed);
-        log.info("# Proof: " + proof);
+        sb.append("# Paranoid criteria value: -" + removed + ", -" + changed);
+        sb.append("# Proof: " + proof);
+        return sb.toString();
     }
 }

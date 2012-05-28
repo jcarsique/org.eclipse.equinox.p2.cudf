@@ -148,7 +148,8 @@ public class Projector {
             solver.setVerbose(configuration.verbose);
             solver.setLogPrefix("# ");
             Log.printlnNoPrefix(solver.toString("# "));
-            dependencyHelper = new LexicoHelper(solver, conf.explain);
+            // Solution changes if conf.explain = false!
+            dependencyHelper = new LexicoHelper(solver, true);
             if (DEBUG_ENCODING) {
                 ((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
             }
@@ -504,8 +505,12 @@ public class Projector {
         IVec sat4jSolution = dependencyHelper.getSolution();
         if (sat4jSolution.isEmpty())
             return;
-        if (configuration.verbose && optFunction != null)
-            optFunction.printSolutionValue();
+        if (optFunction != null) {
+            String solutionValue = optFunction.printSolutionValue();
+            if (configuration.verbose) {
+                Log.println(solutionValue);
+            }
+        }
         for (Iterator i = sat4jSolution.iterator(); i.hasNext();) {
             Object var = i.next();
             if (var instanceof InstallableUnit) {

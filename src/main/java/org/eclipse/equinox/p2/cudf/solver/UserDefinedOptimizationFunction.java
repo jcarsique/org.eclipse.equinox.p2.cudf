@@ -99,7 +99,8 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
         return "User defined:" + optfunction;
     }
 
-    public void printSolutionValue() {
+    public String printSolutionValue() {
+        StringBuilder sb = new StringBuilder();
         int counter;
         List proof = new ArrayList();
         String[] criteria = optfunction.split(",");
@@ -114,8 +115,8 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
                         proof.add(var.toString().substring(18));
                     }
                 }
-                log.info("# " + criteria[i] + " criteria value: " + counter);
-                log.info("# Newly installed packages: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter);
+                sb.append("# Newly installed packages: " + proof);
                 continue;
             }
             if (criteria[i].endsWith("removed")) {
@@ -128,8 +129,8 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
                         proof.add(var.toString().substring(18));
                     }
                 }
-                log.info("# " + criteria[i] + " criteria value: " + counter);
-                log.info("# Removed packages: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter);
+                sb.append("# Removed packages: " + proof);
                 continue;
             }
             if (criteria[i].endsWith("notuptodate")) {
@@ -142,8 +143,8 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
                         proof.add(var.toString().substring(18));
                     }
                 }
-                log.info("# " + criteria[i] + " criteria value: " + counter);
-                log.info("# Not up-to-date packages: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter);
+                sb.append("# Not up-to-date packages: " + proof);
                 continue;
             }
             if (criteria[i].endsWith("recommended")
@@ -157,8 +158,8 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
                         proof.add(var.toString().substring(18));
                     }
                 }
-                log.info("# " + criteria[i] + " criteria value: " + counter);
-                log.info("# Not installed recommended packages: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter);
+                sb.append("# Not installed recommended packages: " + proof);
                 continue;
             }
             if (criteria[i].endsWith("versionchanged")) {
@@ -171,8 +172,8 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
                         proof.add(var.toString().substring(18));
                     }
                 }
-                log.info("# " + criteria[i] + " criteria value: " + counter);
-                log.info("# Packages with version change: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter);
+                sb.append("# Packages with version change: " + proof);
                 continue;
             }
             if (criteria[i].endsWith("changed")) {
@@ -185,8 +186,8 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
                         proof.add(var.toString().substring(18));
                     }
                 }
-                log.info("# " + criteria[i] + " criteria value: " + counter);
-                log.info("# Changed packages: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter);
+                sb.append("# Changed packages: " + proof);
                 continue;
             }
             if (criteria[i].contains("sum")) {
@@ -200,9 +201,10 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
                         sum += iu.getSumProperty();
                     }
                 }
-                log.info("# " + criteria[i] + " criteria value: " + sum);
+                sb.append("# " + criteria[i] + " criteria value: " + sum);
                 continue;
             }
         }
+        return sb.toString();
     }
 }
