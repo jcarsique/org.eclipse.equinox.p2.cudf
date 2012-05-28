@@ -47,18 +47,18 @@ public class Projector {
 
     private QueryableArray picker;
 
-    private Map noopVariables; // key IU, value AbstractVariable
+    private Map<InstallableUnit, AbstractVariable> noopVariables;
 
-    private List abstractVariables;
+    private List<AbstractVariable> abstractVariables;
 
     private TwoTierMap slice; // The IUs that have been considered to be part of
                               // the problem
 
-    LexicoHelper dependencyHelper;
+    LexicoHelper<Object, String> dependencyHelper;
 
-    private Collection solution;
+    private Collection<InstallableUnit> solution;
 
-    private Collection assumptions;
+    private Collection<Object> assumptions;
 
     private MultiStatus result;
 
@@ -68,18 +68,18 @@ public class Projector {
 
     private OptimizationFunction optFunction;
 
-    private List optionalityVariables;
+    private List<AbstractVariable> optionalityVariables;
 
-    private List optionalityPairs;
+    private List<Pair> optionalityPairs;
 
-    static class AbstractVariable {
+    public static class AbstractVariable {
         private String str;
 
-        AbstractVariable() {
+        protected AbstractVariable() {
             // no value for str
         }
 
-        AbstractVariable(String str) {
+        protected AbstractVariable(String str) {
             this.str = str;
         }
 
@@ -90,15 +90,15 @@ public class Projector {
 
     public Projector(QueryableArray q) {
         picker = q;
-        noopVariables = new HashMap();
+        noopVariables = new HashMap<InstallableUnit, AbstractVariable>();
         slice = new TwoTierMap(q.getSize(),
                 TwoTierMap.POLICY_BOTH_MAPS_PRESERVE_ORDERING);
-        abstractVariables = new ArrayList();
+        abstractVariables = new ArrayList<AbstractVariable>();
         result = new MultiStatus(Main.PLUGIN_ID, IStatus.OK,
                 Messages.Planner_Problems_resolving_plan, null);
-        assumptions = new ArrayList();
-        optionalityVariables = new ArrayList();
-        optionalityPairs = new ArrayList();
+        assumptions = new ArrayList<Object>();
+        optionalityVariables = new ArrayList<AbstractVariable>();
+        optionalityPairs = new ArrayList<Pair>();
     }
 
     private void purgeIU(InstallableUnit iu) {
@@ -108,6 +108,7 @@ public class Projector {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void encode(InstallableUnit entryPointIU, SolverConfiguration conf) {
         this.configuration = conf;
         this.entryPoint = entryPointIU;
@@ -120,7 +121,7 @@ public class Projector {
             }
             IPBSolver solver;
             if (DEBUG_ENCODING) {
-                solver = new UserFriendlyPBStringSolver(); // .newOPBStringSolver();
+                solver = new UserFriendlyPBStringSolver<Object>(); // .newOPBStringSolver();
             } else if (conf.encoding) {
                 solver = SolverFactory.newOPBStringSolver();
             } else {
@@ -149,19 +150,20 @@ public class Projector {
             solver.setLogPrefix("# ");
             Log.printlnNoPrefix(solver.toString("# "));
             // Solution changes if conf.explain = false!
-            dependencyHelper = new LexicoHelper(solver, true);
+            dependencyHelper = new LexicoHelper<Object, String>(solver, true);
             if (DEBUG_ENCODING) {
-                ((UserFriendlyPBStringSolver) solver).setMapping(dependencyHelper.getMappingToDomain());
+                ((UserFriendlyPBStringSolver<Object>) solver).setMapping(dependencyHelper.getMappingToDomain());
             }
-            Iterator iusToEncode = picker.iterator();
-            List iusToOrder = new ArrayList(picker.getSize());
+            Iterator<InstallableUnit> iusToEncode = picker.iterator();
+            List<InstallableUnit> iusToOrder = new ArrayList<InstallableUnit>(
+                    picker.getSize());
             while (iusToEncode.hasNext()) {
                 iusToOrder.add(iusToEncode.next());
             }
             Collections.sort(iusToOrder);
             iusToEncode = iusToOrder.iterator();
             while (iusToEncode.hasNext()) {
-                InstallableUnit iuToEncode = (InstallableUnit) iusToEncode.next();
+                InstallableUnit iuToEncode = iusToEncode.next();
                 if (iuToEncode != entryPointIU) {
                     processIU(iuToEncode, false);
                 }
@@ -223,13 +225,15 @@ public class Projector {
         return function;
     }
 
-    private void setObjectiveFunction(List weightedObjects) {
+    @SuppressWarnings("unchecked")
+    private void setObjectiveFunction(
+            List<WeightedObject<Object>> weightedObjects) {
         if (weightedObjects == null)
             return;
         if (DEBUG) {
             StringBuffer b = new StringBuffer();
-            for (Iterator i = weightedObjects.iterator(); i.hasNext();) {
-                WeightedObject object = (WeightedObject) i.next();
+            for (Iterator<WeightedObject<Object>> i = weightedObjects.iterator(); i.hasNext();) {
+                WeightedObject<Object> object = i.next();
                 if (b.length() > 0)
                     b.append(", "); //$NON-NLS-1$
                 b.append(object.getWeight());
@@ -238,7 +242,7 @@ public class Projector {
             }
             Tracing.debug("objective function: " + b); //$NON-NLS-1$
         }
-        dependencyHelper.setObjectiveFunction((WeightedObject[]) weightedObjects.toArray(new WeightedObject[weightedObjects.size()]));
+        dependencyHelper.setObjectiveFunction(weightedObjects.toArray(new WeightedObject[weightedObjects.size()]));
     }
 
     private void createMustHave(InstallableUnit iu)
@@ -247,7 +251,7 @@ public class Projector {
         if (DEBUG) {
             Tracing.debug(iu + "=1"); //$NON-NLS-1$
         }
-        dependencyHelper.setTrue(iu, new Explanation.IUToInstall(iu));
+        dependencyHelper.setTrue(iu, new Explanation.IUToInstall(iu).toString());
         // assumptions.add(iu);
     }
 
@@ -256,20 +260,21 @@ public class Projector {
         if (DEBUG) {
             Tracing.debug(iu + "=0"); //$NON-NLS-1$
         }
-        dependencyHelper.setFalse(iu, new Explanation.MissingIU(iu, req));
+        dependencyHelper.setFalse(iu,
+                new Explanation.MissingIU(iu, req).toString());
     }
 
     private void expandNegatedRequirement(IRequiredCapability req,
             InstallableUnit iu, boolean isRootIu) throws ContradictionException {
         IRequiredCapability negatedReq = ((NotRequirement) req).getRequirement();
-        List matches = getApplicableMatches(negatedReq);
+        List<InstallableUnit> matches = getApplicableMatches(negatedReq);
         matches.remove(iu);
         if (matches.isEmpty()) {
             return;
         }
         Explanation explanation;
         if (isRootIu) {
-            InstallableUnit reqIu = (InstallableUnit) matches.iterator().next();
+            InstallableUnit reqIu = matches.iterator().next();
             explanation = new Explanation.IUToInstall(reqIu);
         } else {
             explanation = new Explanation.HardRequirement(iu, req);
@@ -283,23 +288,23 @@ public class Projector {
             expandNegatedRequirement(req, iu, isRootIu);
             return;
         }
-        List matches = getApplicableMatches(req);
+        List<InstallableUnit> matches = getApplicableMatches(req);
         if (!req.isOptional()) {
             if (matches.isEmpty()) {
                 missingRequirement(iu, req);
             } else {
                 if (req.getArity() == 1) {
-                    createAtMostOne((InstallableUnit[]) matches.toArray(new InstallableUnit[matches.size()]));
+                    createAtMostOne(matches.toArray(new InstallableUnit[matches.size()]));
                     return;
                 }
-                InstallableUnit reqIu = (InstallableUnit) matches.iterator().next();
+                InstallableUnit reqIu = matches.iterator().next();
                 Explanation explanation = new Explanation.IUToInstall(reqIu);
                 createImplication(iu, matches, explanation);
             }
         } else {
             AbstractVariable abs = getAbstractVariable(iu.toString() + "->"
                     + req.toString());
-            matches.add(abs);
+            matches.add((InstallableUnit) abs);
             createImplication(iu, matches, Explanation.OPTIONAL_REQUIREMENT);
             optionalityVariables.add(abs);
             optionalityPairs.add(new Pair(iu, abs));
@@ -338,11 +343,11 @@ public class Projector {
      * @return a list of mandatory requirements if any, an empty list if
      *         req.isOptional().
      */
-    private List getApplicableMatches(IRequiredCapability req) {
-        List target = new ArrayList();
+    private List<InstallableUnit> getApplicableMatches(IRequiredCapability req) {
+        List<InstallableUnit> target = new ArrayList<InstallableUnit>();
         Collector matches = picker.query(new CapabilityQuery(req),
                 new Collector(), null);
-        for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+        for (Iterator<?> iterator = matches.iterator(); iterator.hasNext();) {
             InstallableUnit match = (InstallableUnit) iterator.next();
             target.add(match);
         }
@@ -351,43 +356,48 @@ public class Projector {
 
     // This will create as many implication as there is element in the right
     // argument
-    private void createNegationImplication(Object left, List right,
-            Explanation name) throws ContradictionException {
+    private void createNegationImplication(InstallableUnit left,
+            List<InstallableUnit> right, Explanation name)
+            throws ContradictionException {
         if (DEBUG) {
             Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
         }
-        for (Iterator iterator = right.iterator(); iterator.hasNext();) {
+        for (Iterator<InstallableUnit> iterator = right.iterator(); iterator.hasNext();) {
             dependencyHelper.implication(new Object[] { left }).impliesNot(
-                    iterator.next()).named(name);
+                    iterator.next()).named(name.toString());
         }
 
     }
 
-    private void createImplication(Object left, List right, Explanation name)
+    private void createImplication(InstallableUnit left,
+            List<InstallableUnit> right, Explanation name)
             throws ContradictionException {
         if (DEBUG) {
             Tracing.debug(name + ": " + left + "->" + right); //$NON-NLS-1$ //$NON-NLS-2$
         }
         dependencyHelper.implication(new Object[] { left }).implies(
-                right.toArray()).named(name);
+                right.toArray(new Object[right.size()])).named(name.toString());
     }
 
     // Create constraints to deal with singleton
     // When there is a mix of singleton and non singleton, several constraints
     // are generated
     private void createConstraintsForSingleton() throws ContradictionException {
-        Set s = slice.entrySet();
-        for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+        Set<?> s = slice.entrySet();
+        for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {
+            @SuppressWarnings("rawtypes")
             Map.Entry entry = (Map.Entry) iterator.next();
-            HashMap conflictingEntries = (HashMap) entry.getValue();
+            @SuppressWarnings("rawtypes")
+            Map conflictingEntries = (HashMap) entry.getValue();
             if (conflictingEntries.size() < 2)
                 continue;
 
-            Collection conflictingVersions = conflictingEntries.values();
-            List singletons = new ArrayList();
-            List nonSingletons = new ArrayList();
-            for (Iterator conflictIterator = conflictingVersions.iterator(); conflictIterator.hasNext();) {
-                InstallableUnit iu = (InstallableUnit) conflictIterator.next();
+            @SuppressWarnings("unchecked")
+            Collection<InstallableUnit> conflictingVersions = conflictingEntries.values();
+            List<InstallableUnit> singletons = new ArrayList<InstallableUnit>();
+            List<InstallableUnit> nonSingletons = new ArrayList<InstallableUnit>();
+            for (Iterator<InstallableUnit> conflictIterator = conflictingVersions.iterator(); conflictIterator.hasNext();) {
+                InstallableUnit iu = conflictIterator.next();
                 if (iu.isSingleton()) {
                     singletons.add(iu);
                 } else {
@@ -399,12 +409,12 @@ public class Projector {
 
             InstallableUnit[] singletonArray;
             if (nonSingletons.isEmpty()) {
-                singletonArray = (InstallableUnit[]) singletons.toArray(new InstallableUnit[singletons.size()]);
+                singletonArray = singletons.toArray(new InstallableUnit[singletons.size()]);
                 createAtMostOne(singletonArray);
             } else {
-                singletonArray = (InstallableUnit[]) singletons.toArray(new InstallableUnit[singletons.size() + 1]);
-                for (Iterator iterator2 = nonSingletons.iterator(); iterator2.hasNext();) {
-                    singletonArray[singletonArray.length - 1] = (InstallableUnit) iterator2.next();
+                singletonArray = singletons.toArray(new InstallableUnit[singletons.size() + 1]);
+                for (Iterator<InstallableUnit> iterator2 = nonSingletons.iterator(); iterator2.hasNext();) {
+                    singletonArray[singletonArray.length - 1] = iterator2.next();
                     createAtMostOne(singletonArray);
                 }
             }
@@ -420,7 +430,8 @@ public class Projector {
             }
             Tracing.debug("At most 1 of " + b); //$NON-NLS-1$
         }
-        dependencyHelper.atMost(1, ius).named(new Explanation.Singleton(ius));
+        dependencyHelper.atMost(1, (Object[]) ius).named(
+                new Explanation.Singleton(ius).toString());
     }
 
     private AbstractVariable getAbstractVariable(String name) {
@@ -431,7 +442,7 @@ public class Projector {
 
     private void purge() {
         if (PURGE) {
-            Iterator iusToEncode = picker.iterator();
+            Iterator<?> iusToEncode = picker.iterator();
             while (iusToEncode.hasNext()) {
                 purgeIU((InstallableUnit) iusToEncode.next());
             }
@@ -501,8 +512,8 @@ public class Projector {
         solution = null;
         if (!isSatisfiable)
             return;
-        solution = new ArrayList();
-        IVec sat4jSolution = dependencyHelper.getSolution();
+        solution = new ArrayList<InstallableUnit>();
+        IVec<?> sat4jSolution = dependencyHelper.getSolution();
         if (sat4jSolution.isEmpty())
             return;
         if (optFunction != null) {
@@ -511,7 +522,7 @@ public class Projector {
                 Log.println(solutionValue);
             }
         }
-        for (Iterator i = sat4jSolution.iterator(); i.hasNext();) {
+        for (Iterator<?> i = sat4jSolution.iterator(); i.hasNext();) {
             Object var = i.next();
             if (var instanceof InstallableUnit) {
                 InstallableUnit iu = (InstallableUnit) var;
@@ -522,23 +533,23 @@ public class Projector {
         }
     }
 
-    private void printSolution(Collection state) {
-        ArrayList l = new ArrayList(state);
+    private void printSolution(Collection<InstallableUnit> state) {
+        List<InstallableUnit> l = new ArrayList<InstallableUnit>(state);
         Collections.sort(l);
         Tracing.debug("Solution:"); //$NON-NLS-1$
         Tracing.debug("Numbers of IUs selected: " + l.size()); //$NON-NLS-1$
-        for (Iterator iterator = l.iterator(); iterator.hasNext();) {
+        for (Iterator<?> iterator = l.iterator(); iterator.hasNext();) {
             Tracing.debug(iterator.next().toString());
         }
     }
 
-    public Collection extractSolution() {
+    public Collection<InstallableUnit> extractSolution() {
         if (DEBUG)
             printSolution(solution);
         return solution;
     }
 
-    public Set getExplanation() {
+    public Set<?> getExplanation() {
         ExplanationJob job = new ExplanationJob(dependencyHelper);
         job.schedule();
         IProgressMonitor pm = new NullProgressMonitor();
@@ -570,7 +581,7 @@ public class Projector {
         dependencyHelper.stopSolver();
     }
 
-    public Collection getBestSolutionFoundSoFar() {
+    public Collection<InstallableUnit> getBestSolutionFoundSoFar() {
         if (solution == null) {
             backToIU();
         }

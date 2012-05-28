@@ -56,12 +56,12 @@ public class SimplePlanner {
     }
 
     private InstallableUnit createIURepresentingTheProfile(
-            ArrayList allRequirements) {
+            List<IRequiredCapability> allRequirements) {
         InstallableUnit iud = new InstallableUnit();
         String time = Long.toString(System.currentTimeMillis());
         iud.setId(time);
         iud.setVersion(new Version(0, 0, 0, time));
-        iud.setRequiredCapabilities((IRequiredCapability[]) allRequirements.toArray(new IRequiredCapability[allRequirements.size()]));
+        iud.setRequiredCapabilities(allRequirements.toArray(new IRequiredCapability[allRequirements.size()]));
         Log.println("Request size: " + iud.getRequiredCapabilities().length);
         return iud;
     }
@@ -72,11 +72,11 @@ public class SimplePlanner {
         }
     }
 
-    public Collection getBestSolutionFoundSoFar() {
+    public Collection<InstallableUnit> getBestSolutionFoundSoFar() {
         return projector.getBestSolutionFoundSoFar();
     }
 
-    public Set getExplanation() {
+    public Set<?> getExplanation() {
         return projector.getExplanation();
     }
 
@@ -84,7 +84,7 @@ public class SimplePlanner {
         return projector.dependencyHelper.getSolver();
     }
 
-    public Map getMappingToDomain() {
+    public Map<Integer, Object> getMappingToDomain() {
         return projector.dependencyHelper.getMappingToDomain();
     }
 

@@ -14,6 +14,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.cudf.solver.Projector.AbstractVariable;
+import org.sat4j.pb.tools.WeightedObject;
 
 //	PARANOID: we want to answer the user request, minimizing the number
 //    of packages removed in the solution, and also the packages
@@ -27,10 +29,12 @@ import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 //
 //    ii) S1 is better than S2 iff r1 < r2 or (r1=r2 and c1<c2)
 public class ParanoidOptimizationFunction extends OptimizationFunction {
+    @SuppressWarnings("unused")
     private static final Log log = LogFactory.getLog(ParanoidOptimizationFunction.class);
 
-    public List createOptimizationFunction(InstallableUnit metaIu) {
-        List weightedObjects = new ArrayList();
+    public List<WeightedObject<Object>> createOptimizationFunction(
+            InstallableUnit metaIu) {
+        List<WeightedObject<Object>> weightedObjects = new ArrayList<WeightedObject<Object>>();
         BigInteger weight = BigInteger.valueOf(slice.size() + 1);
         removed(weightedObjects, weight, metaIu);
         changed(weightedObjects, BigInteger.ONE, metaIu);
@@ -47,23 +51,24 @@ public class ParanoidOptimizationFunction extends OptimizationFunction {
     public String printSolutionValue() {
         StringBuilder sb = new StringBuilder();
         int removed = 0, changed = 0;
-        List proof = new ArrayList();
+        List<AbstractVariable> proof = new ArrayList<AbstractVariable>();
         for (int i = 0; i < removalVariables.size(); i++) {
-            Object var = removalVariables.get(i);
+            AbstractVariable var = removalVariables.get(i);
             if (dependencyHelper.getBooleanValueFor(var)) {
                 removed++;
                 proof.add(var);
             }
         }
         for (int i = 0; i < changeVariables.size(); i++) {
-            Object var = changeVariables.get(i);
+            AbstractVariable var = changeVariables.get(i);
             if (dependencyHelper.getBooleanValueFor(var)) {
                 changed++;
                 proof.add(var);
             }
         }
-        sb.append("# Paranoid criteria value: -" + removed + ", -" + changed);
-        sb.append("# Proof: " + proof);
+        sb.append("# Paranoid criteria value: -" + removed + ", -" + changed
+                + "\n");
+        sb.append("# Proof: " + proof + "\n");
         return sb.toString();
     }
 }

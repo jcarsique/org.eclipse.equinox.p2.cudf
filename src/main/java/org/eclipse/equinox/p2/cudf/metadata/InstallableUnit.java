@@ -11,7 +11,10 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.cudf.metadata;
 
-public class InstallableUnit implements Comparable<InstallableUnit> {
+import org.eclipse.equinox.p2.cudf.solver.Projector.AbstractVariable;
+
+public class InstallableUnit extends AbstractVariable implements
+        Comparable<InstallableUnit> {
 
     public static final IProvidedCapability[] NO_PROVIDES = new IProvidedCapability[0];
 

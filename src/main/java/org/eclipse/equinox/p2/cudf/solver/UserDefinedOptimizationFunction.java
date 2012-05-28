@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.p2.cudf.Options;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.cudf.solver.Projector.AbstractVariable;
 import org.sat4j.pb.tools.WeightedObject;
 import org.sat4j.specs.IVec;
 
@@ -18,9 +19,10 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
         this.optfunction = optfunction;
     }
 
-    public List createOptimizationFunction(InstallableUnit metaIu) {
-        List weightedObjects = new ArrayList();
-        List objects = new ArrayList();
+    public List<WeightedObject<Object>> createOptimizationFunction(
+            InstallableUnit metaIu) {
+        List<WeightedObject<Object>> weightedObjects = new ArrayList<WeightedObject<Object>>();
+        List<Object> objects = new ArrayList<Object>();
         BigInteger weight = BigInteger.valueOf(slice.size() + 1);
         String[] criteria = optfunction.split(",");
         BigInteger currentWeight = weight.pow(criteria.length - 1);
@@ -77,8 +79,8 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
             }
             objects.clear();
             maximizes = criteria[i].startsWith("+");
-            for (Iterator it = weightedObjects.iterator(); it.hasNext();) {
-                thing = ((WeightedObject) it.next()).thing;
+            for (Iterator<WeightedObject<Object>> it = weightedObjects.iterator(); it.hasNext();) {
+                thing = (it.next()).thing;
                 if (maximizes) {
                     thing = dependencyHelper.not(thing);
                 }
@@ -102,106 +104,114 @@ public class UserDefinedOptimizationFunction extends OptimizationFunction {
     public String printSolutionValue() {
         StringBuilder sb = new StringBuilder();
         int counter;
-        List proof = new ArrayList();
+        List<String> proof = new ArrayList<String>();
         String[] criteria = optfunction.split(",");
         for (int i = 0; i < criteria.length; i++) {
             if (criteria[i].endsWith("new")) {
                 proof.clear();
                 counter = 0;
                 for (int j = 0; j < newVariables.size(); j++) {
-                    Object var = newVariables.get(j);
+                    AbstractVariable var = newVariables.get(j);
                     if (dependencyHelper.getBooleanValueFor(var)) {
                         counter++;
                         proof.add(var.toString().substring(18));
                     }
                 }
-                sb.append("# " + criteria[i] + " criteria value: " + counter);
-                sb.append("# Newly installed packages: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter
+                        + "\n");
+                sb.append("# Newly installed packages: " + proof + "\n");
                 continue;
             }
             if (criteria[i].endsWith("removed")) {
                 proof.clear();
                 counter = 0;
                 for (int j = 0; j < removalVariables.size(); j++) {
-                    Object var = removalVariables.get(j);
+                    AbstractVariable var = removalVariables.get(j);
                     if (dependencyHelper.getBooleanValueFor(var)) {
                         counter++;
                         proof.add(var.toString().substring(18));
                     }
                 }
-                sb.append("# " + criteria[i] + " criteria value: " + counter);
-                sb.append("# Removed packages: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter
+                        + "\n");
+                sb.append("# Removed packages: " + proof + "\n");
                 continue;
             }
             if (criteria[i].endsWith("notuptodate")) {
                 proof.clear();
                 counter = 0;
                 for (int j = 0; j < nouptodateVariables.size(); j++) {
-                    Object var = nouptodateVariables.get(j);
+                    AbstractVariable var = nouptodateVariables.get(j);
                     if (dependencyHelper.getBooleanValueFor(var)) {
                         counter++;
                         proof.add(var.toString().substring(18));
                     }
                 }
-                sb.append("# " + criteria[i] + " criteria value: " + counter);
-                sb.append("# Not up-to-date packages: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter
+                        + "\n");
+                sb.append("# Not up-to-date packages: " + proof + "\n");
                 continue;
             }
             if (criteria[i].endsWith("recommended")
                     || criteria[i].endsWith("unsat_recommends")) {
                 proof.clear();
                 counter = 0;
-                for (Iterator it = unmetVariables.iterator(); it.hasNext();) {
-                    Object var = it.next();
+                for (Iterator<AbstractVariable> it = unmetVariables.iterator(); it.hasNext();) {
+                    AbstractVariable var = it.next();
                     if (dependencyHelper.getBooleanValueFor(var)) {
                         counter++;
                         proof.add(var.toString().substring(18));
                     }
                 }
-                sb.append("# " + criteria[i] + " criteria value: " + counter);
-                sb.append("# Not installed recommended packages: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter
+                        + "\n");
+                sb.append("# Not installed recommended packages: " + proof
+                        + "\n");
                 continue;
             }
             if (criteria[i].endsWith("versionchanged")) {
                 proof.clear();
                 counter = 0;
                 for (int j = 0; j < versionChangeVariables.size(); j++) {
-                    Object var = versionChangeVariables.get(j);
+                    AbstractVariable var = versionChangeVariables.get(j);
                     if (dependencyHelper.getBooleanValueFor(var)) {
                         counter++;
                         proof.add(var.toString().substring(18));
                     }
                 }
-                sb.append("# " + criteria[i] + " criteria value: " + counter);
-                sb.append("# Packages with version change: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter
+                        + "\n");
+                sb.append("# Packages with version change: " + proof + "\n");
                 continue;
             }
             if (criteria[i].endsWith("changed")) {
                 proof.clear();
                 counter = 0;
                 for (int j = 0; j < changeVariables.size(); j++) {
-                    Object var = changeVariables.get(j);
+                    AbstractVariable var = changeVariables.get(j);
                     if (dependencyHelper.getBooleanValueFor(var)) {
                         counter++;
                         proof.add(var.toString().substring(18));
                     }
                 }
-                sb.append("# " + criteria[i] + " criteria value: " + counter);
-                sb.append("# Changed packages: " + proof);
+                sb.append("# " + criteria[i] + " criteria value: " + counter
+                        + "\n");
+                sb.append("# Changed packages: " + proof + "\n");
                 continue;
             }
             if (criteria[i].contains("sum")) {
                 String sumpProperty = Options.extractSumProperty(criteria[i]);
+                log.debug("sumpProperty: " + sumpProperty);
                 long sum = 0;
-                IVec sol = dependencyHelper.getSolution();
-                for (Iterator it = sol.iterator(); it.hasNext();) {
+                IVec<Object> sol = dependencyHelper.getSolution();
+                for (Iterator<Object> it = sol.iterator(); it.hasNext();) {
                     Object element = it.next();
                     if (element instanceof InstallableUnit) {
                         InstallableUnit iu = (InstallableUnit) element;
                         sum += iu.getSumProperty();
                     }
                 }
-                sb.append("# " + criteria[i] + " criteria value: " + sum);
+                sb.append("# " + criteria[i] + " criteria value: " + sum + "\n");
                 continue;
             }
         }

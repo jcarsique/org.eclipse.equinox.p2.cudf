@@ -45,9 +45,10 @@ public class Main {
                         }
                         outMapping = new PrintWriter(new FileWriter(
                                 mappingFilename));
-                        Map mapping = planner.getMappingToDomain();
-                        Set entries = mapping.entrySet();
-                        for (Iterator it = entries.iterator(); it.hasNext();) {
+                        Map<Integer, Object> mapping = planner.getMappingToDomain();
+                        Set<?> entries = mapping.entrySet();
+                        for (Iterator<?> it = entries.iterator(); it.hasNext();) {
+                            @SuppressWarnings("rawtypes")
                             Map.Entry entry = (Entry) it.next();
                             outMapping.println(entry.getKey() + "="
                                     + entry.getValue());
@@ -69,7 +70,7 @@ public class Main {
                     }
                     long end = System.currentTimeMillis();
                     Log.println(("Solving done (" + (end - begin) / 1000.0 + "s)."));
-                    Collection col = planner.getBestSolutionFoundSoFar();
+                    Collection<InstallableUnit> col = planner.getBestSolutionFoundSoFar();
                     if (col == null) {
                         printFail("Cannot find a solution");
                         if (options.explain) {
@@ -289,15 +290,16 @@ public class Main {
         return null;
     }
 
-    static void printSolution(Collection state, Options theOptions) {
+    static void printSolution(Collection<InstallableUnit> state,
+            Options theOptions) {
         if (theOptions.sort) {
-            ArrayList tmp = new ArrayList(state);
+            List<InstallableUnit> tmp = new ArrayList<InstallableUnit>(state);
             Collections.sort(tmp);
             state = tmp;
         }
         Log.println(("Solution contains:" + state.size()));
-        for (Iterator iterator = state.iterator(); iterator.hasNext();) {
-            InstallableUnit iu = (InstallableUnit) iterator.next();
+        for (Iterator<InstallableUnit> iterator = state.iterator(); iterator.hasNext();) {
+            InstallableUnit iu = iterator.next();
             out.println("package: " + iu.getId());
             out.println("version: " + iu.getVersion().getMajor());
             out.println("installed: " + iu.isInstalled());

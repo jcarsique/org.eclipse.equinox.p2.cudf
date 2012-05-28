@@ -11,30 +11,31 @@
  *******************************************************************************/
 package org.eclipse.equinox.p2.cudf.query;
 
-
 import java.util.Iterator;
 
 /**
  * The superclass of all queries that can be performed on an {@link IQueryable}.
  * <p>
  * 
- * <B>NOTE:  This interface does not follow the proper naming convention. It should 
- * be IQuery, however, for historic reasons it is Query.  This is likely to change.</B>
+ * <B>NOTE: This interface does not follow the proper naming convention. It
+ * should be IQuery, however, for historic reasons it is Query. This is likely
+ * to change.</B>
  * 
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
  */
 public interface Query {
 
-	/**
-	 * Evaluates the query for a specific input.  
-	 * 
-	 * @param iterator The elements for which to evaluate the query on
-	 * @param result A collector to collect the results.  For each element accepted 
-	 * by the query,{@link Collector#accept(Object)} must be called.
-	 * @return The results of the query.  The collector returned must be
-	 * the collector passed in.
-	 */
-	public abstract Collector perform(Iterator iterator, Collector result);
+    /**
+     * Evaluates the query for a specific input.
+     * 
+     * @param iterator The elements for which to evaluate the query on
+     * @param result A collector to collect the results. For each element
+     *            accepted
+     *            by the query,{@link Collector#accept(Object)} must be called.
+     * @return The results of the query. The collector returned must be
+     *         the collector passed in.
+     */
+    public abstract Collector perform(Iterator<?> iterator, Collector result);
 
 }

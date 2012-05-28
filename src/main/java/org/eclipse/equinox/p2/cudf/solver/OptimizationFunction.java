@@ -12,6 +12,7 @@ import java.math.BigInteger;
 import java.util.*;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.query.QueryableArray;
+import org.eclipse.equinox.p2.cudf.solver.Projector.AbstractVariable;
 import org.sat4j.core.Vec;
 import org.sat4j.pb.tools.LexicoHelper;
 import org.sat4j.pb.tools.WeightedObject;
@@ -19,31 +20,32 @@ import org.sat4j.specs.ContradictionException;
 import org.sat4j.specs.IVec;
 
 public abstract class OptimizationFunction {
-    protected Map slice;
+    protected TwoTierMap slice;
 
-    protected Map noopVariables;
+    protected Map<?, ?> noopVariables;
 
     protected QueryableArray picker;
 
-    protected LexicoHelper dependencyHelper;
+    protected LexicoHelper<Object, String> dependencyHelper;
 
-    protected List removalVariables = new ArrayList();
+    protected List<AbstractVariable> removalVariables = new ArrayList<AbstractVariable>();
 
-    protected List changeVariables = new ArrayList();
+    protected List<AbstractVariable> changeVariables = new ArrayList<AbstractVariable>();
 
-    protected List versionChangeVariables = new ArrayList();
+    protected List<AbstractVariable> versionChangeVariables = new ArrayList<AbstractVariable>();
 
-    protected List nouptodateVariables = new ArrayList();
+    protected List<AbstractVariable> nouptodateVariables = new ArrayList<AbstractVariable>();
 
-    protected List newVariables = new ArrayList();
+    protected List<AbstractVariable> newVariables = new ArrayList<AbstractVariable>();
 
-    protected List unmetVariables = new ArrayList();
+    protected List<AbstractVariable> unmetVariables = new ArrayList<AbstractVariable>();
 
-    protected List optionalityVariables;
+    protected List<AbstractVariable> optionalityVariables;
 
-    protected List optionalityPairs;
+    protected List<Pair> optionalityPairs;
 
-    public abstract List createOptimizationFunction(InstallableUnit metaIu);
+    public abstract List<WeightedObject<Object>> createOptimizationFunction(
+            InstallableUnit metaIu);
 
     public abstract String printSolutionValue();
 
@@ -83,30 +85,32 @@ public abstract class OptimizationFunction {
         }
     }
 
-    protected void removed(List weightedObjects, BigInteger weight,
-            InstallableUnit metaIu) {
-        Set s = slice.entrySet();
-        for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+    protected void removed(Collection<WeightedObject<Object>> weightedObjects,
+            BigInteger weight, InstallableUnit metaIu) {
+        Set<?> s = slice.entrySet();
+        for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {
+            @SuppressWarnings("rawtypes")
             Map.Entry entry = (Map.Entry) iterator.next();
             if (entry.getKey() == metaIu.getId())
                 continue;
-            Collection versions = ((HashMap) entry.getValue()).values();
+            Collection<?> versions = ((HashMap<?, ?>) entry.getValue()).values();
             boolean installed = false;
             Object[] literals = new Object[versions.size()];
             int i = 0;
-            for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
+            for (Iterator<?> iterator2 = versions.iterator(); iterator2.hasNext();) {
                 InstallableUnit iuv = (InstallableUnit) iterator2.next();
                 installed = installed || iuv.isInstalled();
                 literals[i++] = dependencyHelper.not(iuv);
             }
             if (installed) {
                 try {
-                    Projector.AbstractVariable abs = new Projector.AbstractVariable(
+                    AbstractVariable abs = new AbstractVariable(
                             entry.getKey().toString());
                     removalVariables.add(abs);
                     // abs <=> not iuv1 and ... and not iuvn
                     dependencyHelper.and("OPT1", abs, literals);
-                    weightedObjects.add(WeightedObject.newWO(abs, weight));
+                    weightedObjects.add(WeightedObject.newWO((Object) abs,
+                            weight));
                 } catch (ContradictionException e) {
                     // should not happen
                     e.printStackTrace();
@@ -116,18 +120,19 @@ public abstract class OptimizationFunction {
         }
     }
 
-    protected void versionChanged(List weightedObjects, BigInteger weight,
-            InstallableUnit metaIu) {
-        Set s = slice.entrySet();
-        for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+    protected void versionChanged(List<WeightedObject<Object>> weightedObjects,
+            BigInteger weight, InstallableUnit metaIu) {
+        Set<?> s = slice.entrySet();
+        for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {
+            @SuppressWarnings("rawtypes")
             Map.Entry entry = (Map.Entry) iterator.next();
             if (entry.getKey() == metaIu.getId())
                 continue;
-            Collection versions = ((HashMap) entry.getValue()).values();
+            Collection<?> versions = ((HashMap<?, ?>) entry.getValue()).values();
             boolean installed = false;
             IVec<InstallableUnit> changed = new Vec<InstallableUnit>(
                     versions.size());
-            for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
+            for (Iterator<?> iterator2 = versions.iterator(); iterator2.hasNext();) {
                 InstallableUnit iu = (InstallableUnit) iterator2.next();
                 installed = installed || iu.isInstalled();
                 if (!iu.isInstalled()) {
@@ -135,15 +140,16 @@ public abstract class OptimizationFunction {
                 }
             }
             if (installed) {
-                Object[] changedarray = new Object[changed.size()];
+                InstallableUnit[] changedarray = new InstallableUnit[changed.size()];
                 changed.copyTo(changedarray);
                 try {
-                    Projector.AbstractVariable abs = new Projector.AbstractVariable(
+                    AbstractVariable abs = new AbstractVariable(
                             entry.getKey().toString());
                     versionChangeVariables.add(abs);
                     // abs <=> iuv1 or not iuv2 or ... or not iuvn
-                    dependencyHelper.or("OPT3", abs, changedarray);
-                    weightedObjects.add(WeightedObject.newWO(abs, weight));
+                    dependencyHelper.or("OPT3", abs, (Object[]) changedarray);
+                    weightedObjects.add(WeightedObject.newWO((Object) abs,
+                            weight));
                 } catch (ContradictionException e) {
                     // should not happen
                     e.printStackTrace();
@@ -152,28 +158,30 @@ public abstract class OptimizationFunction {
         }
     }
 
-    protected void changed(List weightedObjects, BigInteger weight,
-            InstallableUnit metaIu) {
-        Set s = slice.entrySet();
-        for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+    protected void changed(Collection<WeightedObject<Object>> weightedObjects,
+            BigInteger weight, InstallableUnit metaIu) {
+        Set<?> s = slice.entrySet();
+        for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {
+            @SuppressWarnings("rawtypes")
             Map.Entry entry = (Map.Entry) iterator.next();
             if (entry.getKey() == metaIu.getId())
                 continue;
-            Collection versions = ((HashMap) entry.getValue()).values();
+            Collection<?> versions = ((HashMap<?, ?>) entry.getValue()).values();
             Object[] changed = new Object[versions.size()];
             int i = 0;
-            for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
+            for (Iterator<?> iterator2 = versions.iterator(); iterator2.hasNext();) {
                 InstallableUnit iu = (InstallableUnit) iterator2.next();
 
-                changed[i++] = iu.isInstalled() ? dependencyHelper.not(iu) : iu;
+                changed[i++] = (iu.isInstalled() ? dependencyHelper.not(iu)
+                        : iu);
             }
             try {
-                Projector.AbstractVariable abs = new Projector.AbstractVariable(
+                AbstractVariable abs = new AbstractVariable(
                         entry.getKey().toString());
                 changeVariables.add(abs);
                 // abs <=> iuv1 or not iuv2 or ... or not iuvn
                 dependencyHelper.or("OPT3", abs, changed);
-                weightedObjects.add(WeightedObject.newWO(abs, weight));
+                weightedObjects.add(WeightedObject.newWO((Object) abs, weight));
             } catch (ContradictionException e) {
                 // should not happen
                 e.printStackTrace();
@@ -181,31 +189,40 @@ public abstract class OptimizationFunction {
         }
     }
 
-    protected void uptodate(List weightedObjects, BigInteger weight,
-            InstallableUnit metaIu) {
-        Set s = slice.entrySet();
-        for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+    protected void uptodate(List<WeightedObject<?>> weightedObjects,
+            BigInteger weight, InstallableUnit metaIu) {
+        Set<?> s = slice.entrySet();
+        for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {
+            @SuppressWarnings("rawtypes")
             Map.Entry entry = (Map.Entry) iterator.next();
             if (entry.getKey() == metaIu.getId())
                 continue;
+            @SuppressWarnings("rawtypes")
             HashMap versions = (HashMap) entry.getValue();
-            List toSort = new ArrayList(versions.values());
+            @SuppressWarnings("unchecked")
+            List<InstallableUnit> toSort = new ArrayList<InstallableUnit>(
+                    versions.values());
             Collections.sort(toSort, Collections.reverseOrder());
             weightedObjects.add(WeightedObject.newWO(toSort.get(0), weight));
         }
     }
 
-    protected void notuptodate(List weightedObjects, BigInteger weight,
-            InstallableUnit metaIu) {
-        Set s = slice.entrySet();
-        for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+    protected void notuptodate(
+            Collection<WeightedObject<Object>> weightedObjects,
+            BigInteger weight, InstallableUnit metaIu) {
+        Set<?> s = slice.entrySet();
+        for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {
+            @SuppressWarnings("rawtypes")
             Map.Entry entry = (Map.Entry) iterator.next();
             if (entry.getKey() == metaIu.getId())
                 continue;
+            @SuppressWarnings("rawtypes")
             HashMap versions = (HashMap) entry.getValue();
-            List toSort = new ArrayList(versions.values());
+            @SuppressWarnings("unchecked")
+            List<AbstractVariable> toSort = new ArrayList<AbstractVariable>(
+                    versions.values());
             Collections.sort(toSort, Collections.reverseOrder());
-            Projector.AbstractVariable abs = new Projector.AbstractVariable(
+            AbstractVariable abs = new AbstractVariable(
                     entry.getKey().toString());
             Object notlatest = dependencyHelper.not(toSort.get(0));
             try {
@@ -226,23 +243,24 @@ public abstract class OptimizationFunction {
                 e.printStackTrace();
             }
 
-            weightedObjects.add(WeightedObject.newWO(abs, weight));
+            weightedObjects.add(WeightedObject.newWO((Object) abs, weight));
             nouptodateVariables.add(abs);
         }
     }
 
-    protected void unmetRecommends(List weightedObjects, BigInteger weight,
+    protected void unmetRecommends(
+            List<WeightedObject<Object>> weightedObjects, BigInteger weight,
             InstallableUnit metaIu) {
-        for (Iterator iterator = optionalityPairs.iterator(); iterator.hasNext();) {
-            Pair entry = (Pair) iterator.next();
+        for (Iterator<Pair> iterator = optionalityPairs.iterator(); iterator.hasNext();) {
+            Pair entry = iterator.next();
             if (entry.left == metaIu) {
                 // weightedObjects.add(WeightedObject.newWO(entry.right,
                 // weight));
                 continue;
             }
 
-            Projector.AbstractVariable abs = new Projector.AbstractVariable(
-                    entry.left.toString() + entry.right);
+            AbstractVariable abs = new AbstractVariable(entry.left.toString()
+                    + entry.right);
             try {
                 dependencyHelper.and("OPTX", abs, new Object[] { entry.right,
                         entry.left });
@@ -250,34 +268,37 @@ public abstract class OptimizationFunction {
                 // should never happen
                 e.printStackTrace();
             }
-            weightedObjects.add(WeightedObject.newWO(abs, weight));
+            weightedObjects.add(WeightedObject.newWO((Object) abs, weight));
             unmetVariables.add(abs);
         }
     }
 
-    protected void niou(List weightedObjects, BigInteger weight,
-            InstallableUnit metaIu) {
-        Set s = slice.entrySet();
-        for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+    protected void niou(Collection<WeightedObject<Object>> weightedObjects,
+            BigInteger weight, InstallableUnit metaIu) {
+        Set<?> s = slice.entrySet();
+        for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {
+            @SuppressWarnings("rawtypes")
             Map.Entry entry = (Map.Entry) iterator.next();
             if (entry.getKey() == metaIu.getId())
                 continue;
-            Collection versions = ((HashMap) entry.getValue()).values();
+            @SuppressWarnings({ "rawtypes", "unchecked" })
+            Collection<InstallableUnit> versions = ((HashMap) entry.getValue()).values();
             boolean installed = false;
-            for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
-                InstallableUnit iuv = (InstallableUnit) iterator2.next();
+            for (Iterator<InstallableUnit> iterator2 = versions.iterator(); iterator2.hasNext();) {
+                InstallableUnit iuv = iterator2.next();
                 installed = installed || iuv.isInstalled();
             }
             if (!installed) {
                 try {
-                    Projector.AbstractVariable abs = new Projector.AbstractVariable(
+                    AbstractVariable abs = new AbstractVariable(
                             entry.getKey().toString());
                     newVariables.add(abs);
                     // a <=> iuv1 or ... or iuvn
-                    Object[] clause = new Object[versions.size()];
+                    AbstractVariable[] clause = new AbstractVariable[versions.size()];
                     versions.toArray(clause);
-                    dependencyHelper.or("OPT2", abs, clause);
-                    weightedObjects.add(WeightedObject.newWO(abs, weight));
+                    dependencyHelper.or("OPT2", abs, (Object[]) clause);
+                    weightedObjects.add(WeightedObject.newWO((Object) abs,
+                            weight));
                 } catch (ContradictionException e) {
                     // should not happen
                     e.printStackTrace();
@@ -287,30 +308,34 @@ public abstract class OptimizationFunction {
         }
     }
 
-    protected void optional(List weightedObjects, BigInteger weight,
-            InstallableUnit metaIu) {
-        for (Iterator it = optionalityPairs.iterator(); it.hasNext();) {
-            Pair pair = (Pair) it.next();
+    protected void optional(List<WeightedObject<Object>> weightedObjects,
+            BigInteger weight, InstallableUnit metaIu) {
+        for (Iterator<Pair> it = optionalityPairs.iterator(); it.hasNext();) {
+            Pair pair = it.next();
             if (pair.left != metaIu) {
-                weightedObjects.add(WeightedObject.newWO(pair.right, weight));
+                weightedObjects.add(WeightedObject.newWO((Object) pair.right,
+                        weight));
                 unmetVariables.add(pair.right);
             }
         }
     }
 
-    protected void sum(List weightedObjects, boolean minimize,
-            InstallableUnit metaIu, String sumProperty) {
-        Set s = slice.entrySet();
-        for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+    protected void sum(List<WeightedObject<Object>> weightedObjects,
+            boolean minimize, InstallableUnit metaIu, String sumProperty) {
+        Set<?> s = slice.entrySet();
+        for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {
+            @SuppressWarnings("rawtypes")
             Map.Entry entry = (Map.Entry) iterator.next();
             if (entry.getKey() == metaIu.getId())
                 continue;
+            @SuppressWarnings("rawtypes")
             Collection versions = ((HashMap) entry.getValue()).values();
-            for (Iterator iterator2 = versions.iterator(); iterator2.hasNext();) {
-                InstallableUnit iuv = (InstallableUnit) iterator2.next();
+            for (@SuppressWarnings("unchecked")
+            Iterator<InstallableUnit> iterator2 = versions.iterator(); iterator2.hasNext();) {
+                InstallableUnit iuv = iterator2.next();
                 if (iuv.getSumProperty() != 0) {
                     BigInteger weight = BigInteger.valueOf(iuv.getSumProperty());
-                    weightedObjects.add(WeightedObject.newWO(iuv,
+                    weightedObjects.add(WeightedObject.newWO((Object) iuv,
                             minimize ? weight : weight.negate()));
                 }
             }
@@ -335,9 +360,9 @@ public abstract class OptimizationFunction {
         return details;
     }
 
-    private List<String> getAsStringList(List variables) {
+    private List<String> getAsStringList(List<AbstractVariable> variables) {
         List<String> list = new ArrayList<String>();
-        for (Object var : variables) {
+        for (AbstractVariable var : variables) {
             if (dependencyHelper.getBooleanValueFor(var)) {
                 list.add(var.toString().substring(18));
             }

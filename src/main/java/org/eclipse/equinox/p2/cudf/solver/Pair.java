@@ -8,15 +8,20 @@
  ******************************************************************************/
 package org.eclipse.equinox.p2.cudf.solver;
 
+import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.cudf.solver.Projector.AbstractVariable;
+
 class Pair {
-	public final Object left, right;
+    public final InstallableUnit left;
 
-	Pair(Object left, Object right) {
-		this.left = left;
-		this.right = right;
-	}
+    public final AbstractVariable right;
 
-	public String toString() {
-		return "(" + left + "," + right + ")";
-	}
+    Pair(InstallableUnit left, AbstractVariable right) {
+        this.left = left;
+        this.right = right;
+    }
+
+    public String toString() {
+        return "(" + left + "," + right + ")";
+    }
 }

@@ -18,26 +18,31 @@ import org.sat4j.pb.tools.WeightedObject;
 
 public class P2OptimizationFunction extends OptimizationFunction {
 
-    public List createOptimizationFunction(InstallableUnit metaIu) {
-        List weightedObjects = new ArrayList();
+    public List<WeightedObject<Object>> createOptimizationFunction(
+            InstallableUnit metaIu) {
+        List<WeightedObject<Object>> weightedObjects = new ArrayList<WeightedObject<Object>>();
 
-        Set s = slice.entrySet();
+        Set<?> s = slice.entrySet();
         final BigInteger POWER = BigInteger.valueOf(2);
 
         BigInteger maxWeight = POWER;
-        for (Iterator iterator = s.iterator(); iterator.hasNext();) {
+        for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {
+            @SuppressWarnings("rawtypes")
             Map.Entry entry = (Map.Entry) iterator.next();
-            HashMap conflictingEntries = (HashMap) entry.getValue();
+            @SuppressWarnings("rawtypes")
+            Map conflictingEntries = (HashMap) entry.getValue();
             if (conflictingEntries.size() == 1) {
                 continue;
             }
-            List toSort = new ArrayList(conflictingEntries.values());
+            @SuppressWarnings("unchecked")
+            List<InstallableUnit> toSort = new ArrayList<InstallableUnit>(
+                    conflictingEntries.values());
             Collections.sort(toSort, Collections.reverseOrder());
             BigInteger weight = POWER;
             int count = toSort.size();
             for (int i = 0; i < count; i++) {
-                InstallableUnit iu = (InstallableUnit) toSort.get(i);
-                weightedObjects.add(WeightedObject.newWO(iu,
+                InstallableUnit iu = toSort.get(i);
+                weightedObjects.add(WeightedObject.newWO((Object) iu,
                         iu.isInstalled() ? BigInteger.ONE : weight));
                 weight = weight.multiply(POWER);
             }
@@ -70,22 +75,23 @@ public class P2OptimizationFunction extends OptimizationFunction {
 
         BigInteger optionalWeight = maxWeight.negate();
         long countOptional = 1;
-        List requestedPatches = new ArrayList();
+        List<Object> requestedPatches = new ArrayList<Object>();
         IRequiredCapability[] reqs = metaIu.getRequiredCapabilities();
         for (int j = 0; j < reqs.length; j++) {
             if (!reqs[j].isOptional())
                 continue;
             Collector matches = picker.query(new CapabilityQuery(reqs[j]),
                     new Collector(), null);
-            for (Iterator iterator = matches.iterator(); iterator.hasNext();) {
+            for (Iterator<?> iterator = matches.iterator(); iterator.hasNext();) {
                 InstallableUnit match = (InstallableUnit) iterator.next();
-                weightedObjects.add(WeightedObject.newWO(match, optionalWeight));
+                weightedObjects.add(WeightedObject.newWO((Object) match,
+                        optionalWeight));
             }
         }
 
         BigInteger patchWeight = maxWeight.multiply(POWER).multiply(
                 BigInteger.valueOf(countOptional)).negate();
-        for (Iterator iterator = requestedPatches.iterator(); iterator.hasNext();) {
+        for (Iterator<Object> iterator = requestedPatches.iterator(); iterator.hasNext();) {
             weightedObjects.add(WeightedObject.newWO(iterator.next(),
                     patchWeight));
         }

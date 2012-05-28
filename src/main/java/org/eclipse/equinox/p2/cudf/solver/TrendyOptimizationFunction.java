@@ -13,6 +13,8 @@ import java.util.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
+import org.eclipse.equinox.p2.cudf.solver.Projector.AbstractVariable;
+import org.sat4j.pb.tools.WeightedObject;
 
 //	TRENDY:   we want to answer the user request, minimizing the number
 //    of packages removed in the solution, maximizing the number
@@ -30,10 +32,12 @@ import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 //        r1 < r2 or (r1=r2 and (u1>u2 or (u1=u2 and n1<n2)))
 
 public class TrendyOptimizationFunction extends OptimizationFunction {
+    @SuppressWarnings("unused")
     private static final Log log = LogFactory.getLog(TrendyOptimizationFunction.class);
 
-    public List createOptimizationFunction(InstallableUnit metaIu) {
-        List weightedObjects = new ArrayList();
+    public List<WeightedObject<Object>> createOptimizationFunction(
+            InstallableUnit metaIu) {
+        List<WeightedObject<Object>> weightedObjects = new ArrayList<WeightedObject<Object>>();
         BigInteger weight = BigInteger.valueOf(slice.size() + 1);
         removed(weightedObjects, weight.multiply(weight).multiply(weight),
                 metaIu);
@@ -53,46 +57,46 @@ public class TrendyOptimizationFunction extends OptimizationFunction {
     public String printSolutionValue() {
         StringBuilder sb = new StringBuilder();
         int removed = 0, notUpToDate = 0, recommends = 0, niou = 0;
-        List proof = new ArrayList();
+        List<String> proof = new ArrayList<String>();
 
         for (int i = 0; i < removalVariables.size(); i++) {
-            Object var = removalVariables.get(i);
+            AbstractVariable var = removalVariables.get(i);
             if (dependencyHelper.getBooleanValueFor(var)) {
                 removed++;
                 proof.add(var.toString().substring(18));
             }
         }
-        sb.append("# Removed packages: " + proof);
+        sb.append("# Removed packages: " + proof + "\n");
         proof.clear();
         for (int i = 0; i < nouptodateVariables.size(); i++) {
-            Object var = nouptodateVariables.get(i);
+            AbstractVariable var = nouptodateVariables.get(i);
             if (dependencyHelper.getBooleanValueFor(var)) {
                 notUpToDate++;
                 proof.add(var.toString().substring(18));
             }
         }
-        sb.append("# Not up-to-date packages: " + proof);
+        sb.append("# Not up-to-date packages: " + proof + "\n");
         proof.clear();
-        for (Iterator it = unmetVariables.iterator(); it.hasNext();) {
-            Object var = it.next();
+        for (Iterator<AbstractVariable> it = unmetVariables.iterator(); it.hasNext();) {
+            AbstractVariable var = it.next();
             if (dependencyHelper.getBooleanValueFor(var)) {
                 recommends++;
                 proof.add(var.toString().substring(18));
             }
         }
-        sb.append("# Not installed recommended packages: " + proof);
+        sb.append("# Not installed recommended packages: " + proof + "\n");
         proof.clear();
         for (int i = 0; i < newVariables.size(); i++) {
-            Object var = newVariables.get(i);
+            AbstractVariable var = newVariables.get(i);
             if (dependencyHelper.getBooleanValueFor(var)) {
                 niou++;
                 proof.add(var.toString().substring(18));
             }
         }
-        sb.append("# Newly installed packages: " + proof);
+        sb.append("# Newly installed packages: " + proof + "\n");
         proof.clear();
         sb.append("# Trendy criteria value: -" + removed + ", -" + notUpToDate
-                + ", -" + recommends + ", -" + niou);
+                + ", -" + recommends + ", -" + niou + "\n");
         return sb.toString();
     }
 }

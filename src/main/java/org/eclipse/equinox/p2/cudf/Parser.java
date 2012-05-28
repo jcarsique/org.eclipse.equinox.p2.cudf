@@ -30,15 +30,16 @@ public class Parser {
 
     private ProfileChangeRequest currentRequest = null;
 
-    private List allIUs = new ArrayList();
+    private List<InstallableUnit> allIUs = new ArrayList<InstallableUnit>();
 
     private QueryableArray query = null;
 
-    private List preInstalled = new ArrayList(10000);
+    private List<IRequiredCapability> preInstalled = new ArrayList<IRequiredCapability>(
+            10000);
 
-    private List keepRequests = new ArrayList();
+    private List<IRequiredCapability> keepRequests = new ArrayList<IRequiredCapability>();
 
-    private List currentKeepRequests = new ArrayList();
+    private List<IRequiredCapability> currentKeepRequests = new ArrayList<IRequiredCapability>();
 
     class Tuple {
         String name;
@@ -47,7 +48,7 @@ public class Parser {
 
         String operator;
 
-        Set extraData;
+        Set<?> extraData;
 
         Tuple(String line) {
             String[] tuple = new String[3];
@@ -171,8 +172,8 @@ public class Parser {
         if (TIMING)
             Log.println("Time to parse:" + (System.currentTimeMillis() - start));
         if (DEBUG)
-            for (Iterator iter = allIUs.iterator(); iter.hasNext();)
-                debug((InstallableUnit) iter.next());
+            for (Iterator<InstallableUnit> iter = allIUs.iterator(); iter.hasNext();)
+                debug(iter.next());
         if (FORCE_QUERY) {
             if (query == null)
                 initializeQueryableArray();
@@ -266,9 +267,10 @@ public class Parser {
 
     private void handleInstall(String line) {
         line = line.substring("install: ".length());
-        List installRequest = createRequires(line, true, false, true);
-        for (Iterator iterator = installRequest.iterator(); iterator.hasNext();) {
-            currentRequest.addInstallableUnit((IRequiredCapability) iterator.next());
+        List<IRequiredCapability> installRequest = createRequires(line, true,
+                false, true);
+        for (Iterator<IRequiredCapability> iterator = installRequest.iterator(); iterator.hasNext();) {
+            currentRequest.addInstallableUnit(iterator.next());
         }
         return;
     }
@@ -282,23 +284,25 @@ public class Parser {
 
     private void handleRemove(String line) {
         line = line.substring("remove: ".length());
-        List removeRequest = createRequires(line, true, false, true);
-        for (Iterator iterator = removeRequest.iterator(); iterator.hasNext();) {
-            currentRequest.removeInstallableUnit((IRequiredCapability) iterator.next());
+        List<IRequiredCapability> removeRequest = createRequires(line, true,
+                false, true);
+        for (Iterator<IRequiredCapability> iterator = removeRequest.iterator(); iterator.hasNext();) {
+            currentRequest.removeInstallableUnit(iterator.next());
         }
         return;
     }
 
     private void initializeQueryableArray() {
         query = new QueryableArray(
-                (InstallableUnit[]) allIUs.toArray(new InstallableUnit[allIUs.size()]));
+                allIUs.toArray(new InstallableUnit[allIUs.size()]));
     }
 
     private void handleUpgrade(String line) {
         line = line.substring("upgrade: ".length());
-        List updateRequest = createRequires(line, true, false, true);
-        for (Iterator iterator = updateRequest.iterator(); iterator.hasNext();) {
-            IRequiredCapability requirement = (IRequiredCapability) iterator.next();
+        List<IRequiredCapability> updateRequest = createRequires(line, true,
+                false, true);
+        for (Iterator<IRequiredCapability> iterator = updateRequest.iterator(); iterator.hasNext();) {
+            IRequiredCapability requirement = iterator.next();
             currentRequest.upgradeInstallableUnit(requirement);
 
             // Add a requirement forcing uniqueness of the upgraded package in
@@ -320,7 +324,7 @@ public class Parser {
         Version highestVersion = null;
         Collector c = query.query(new CapabilityQuery(req), new Collector(),
                 null);
-        for (Iterator iterator = c.iterator(); iterator.hasNext();) {
+        for (Iterator<?> iterator = c.iterator(); iterator.hasNext();) {
             InstallableUnit candidate = (InstallableUnit) iterator.next();
             if (!candidate.isInstalled())
                 continue;
@@ -375,11 +379,11 @@ public class Parser {
      * Conflicts are like depends except NOT'd.
      */
     private void handleConflicts(String line) {
-        List reqs = createRequires(line.substring("conflicts: ".length()),
-                false, false, false);
-        List conflicts = new ArrayList();
-        for (Iterator iter = reqs.iterator(); iter.hasNext();) {
-            IRequiredCapability req = (IRequiredCapability) iter.next();
+        List<IRequiredCapability> reqs = createRequires(
+                line.substring("conflicts: ".length()), false, false, false);
+        List<IRequiredCapability> conflicts = new ArrayList<IRequiredCapability>();
+        for (Iterator<IRequiredCapability> iter = reqs.iterator(); iter.hasNext();) {
+            IRequiredCapability req = iter.next();
             if (currentIU.getId().equals(req.getName())
                     && req.getRange().equals(VersionRange.emptyRange)) {
                 currentIU.setSingleton(true);
@@ -393,13 +397,13 @@ public class Parser {
     /*
      * Set the given list of requirements on the current IU. Merge if necessary.
      */
-    private void mergeRequirements(List requirements) {
+    private void mergeRequirements(List<IRequiredCapability> requirements) {
         if (currentIU.getRequiredCapabilities() != null) {
             IRequiredCapability[] current = currentIU.getRequiredCapabilities();
             for (int i = 0; i < current.length; i++)
                 requirements.add(current[i]);
         }
-        currentIU.setRequiredCapabilities((IRequiredCapability[]) requirements.toArray(new IRequiredCapability[requirements.size()]));
+        currentIU.setRequiredCapabilities(requirements.toArray(new IRequiredCapability[requirements.size()]));
     }
 
     /*
@@ -408,18 +412,19 @@ public class Parser {
      * entries are included
      * in the extraData field of the Tuple.
      */
-    private List createPackageList(String line) {
+    private List<Tuple> createPackageList(String line) {
         StringTokenizer tokenizer = new StringTokenizer(line, ",");
-        List result = new ArrayList(tokenizer.countTokens());
+        List<Tuple> result = new ArrayList<Tuple>(tokenizer.countTokens());
         while (tokenizer.hasMoreElements()) {
             result.add(new Tuple(tokenizer.nextToken()));
         }
         return result;
     }
 
-    private List createRequires(String line, boolean expandNotEquals,
-            boolean optional, boolean dependency) {
-        ArrayList ands = new ArrayList();
+    @SuppressWarnings("unchecked")
+    private List<IRequiredCapability> createRequires(String line,
+            boolean expandNotEquals, boolean optional, boolean dependency) {
+        List<IRequiredCapability> ands = new ArrayList<IRequiredCapability>();
         StringTokenizer s = new StringTokenizer(line, ",");
         String subtoken;
         while (s.hasMoreElements()) {
@@ -443,9 +448,9 @@ public class Parser {
                 }
                 Object o = createRequire(subtoken, expandNotEquals, optional);
                 if (o instanceof IRequiredCapability)
-                    ands.add(o);
+                    ands.add((IRequiredCapability) o);
                 else
-                    ands.addAll((Collection) o);
+                    ands.addAll((Collection<IRequiredCapability>) o);
                 continue;
             }
 
@@ -493,7 +498,8 @@ public class Parser {
                         new RequiredCapability(id, createRange3(">", version),
                                 optional) }, optional);
             }
-            ArrayList res = new ArrayList(2);
+            List<IRequiredCapability> res = new ArrayList<IRequiredCapability>(
+                    2);
             res.add(new RequiredCapability(id, createRange3("<", version),
                     optional));
             res.add(new RequiredCapability(id, createRange3(">", version),
@@ -529,7 +535,7 @@ public class Parser {
     }
 
     private IProvidedCapability createProvidedCapability(Tuple tuple) {
-        Set extraData = tuple.extraData;
+        Set<?> extraData = tuple.extraData;
         // one constraint so simply return the capability
         if (extraData == null)
             return new ProvidedCapability(tuple.name, createVersionRange(
@@ -605,11 +611,11 @@ public class Parser {
 
     private void handleProvides(String line) {
         line = line.substring("provides: ".length());
-        List pkgs = createPackageList(line);
+        List<Tuple> pkgs = createPackageList(line);
         IProvidedCapability[] providedCapabilities = new ProvidedCapability[pkgs.size() + 1];
         int i = 0;
-        for (Iterator iter = pkgs.iterator(); iter.hasNext();) {
-            providedCapabilities[i++] = createProvidedCapability((Tuple) iter.next());
+        for (Iterator<Tuple> iter = pkgs.iterator(); iter.hasNext();) {
+            providedCapabilities[i++] = createProvidedCapability(iter.next());
         }
         providedCapabilities[i++] = new ProvidedCapability(currentIU.getId(),
                 new VersionRange(currentIU.getVersion(), true,
