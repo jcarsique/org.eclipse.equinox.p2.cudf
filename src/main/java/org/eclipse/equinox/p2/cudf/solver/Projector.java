@@ -150,7 +150,8 @@ public class Projector {
             solver.setLogPrefix("# ");
             Log.printlnNoPrefix(solver.toString("# "));
             // Solution changes if conf.explain = false!
-            dependencyHelper = new LexicoHelper<Object, String>(solver, true);
+            dependencyHelper = new LexicoHelper<Object, String>(solver,
+                    conf.explain);
             if (DEBUG_ENCODING) {
                 ((UserFriendlyPBStringSolver<Object>) solver).setMapping(dependencyHelper.getMappingToDomain());
             }
@@ -517,8 +518,8 @@ public class Projector {
         if (sat4jSolution.isEmpty())
             return;
         if (optFunction != null) {
-            String solutionValue = optFunction.printSolutionValue();
             if (configuration.verbose) {
+                String solutionValue = optFunction.printSolutionValue();
                 Log.println(solutionValue);
             }
         }
