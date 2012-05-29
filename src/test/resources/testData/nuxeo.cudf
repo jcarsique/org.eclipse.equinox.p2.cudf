@@ -1,0 +1,53 @@
+package: A
+version: 1
+installed: false
+depends: B, C
+conflicts: NA
+provides:
+
+package: A
+version: 2
+installed: false
+depends: B, C
+conflicts: NA
+provides:
+
+package: NA
+version: 1
+installed: false
+depends:
+conflicts: A
+provides:
+
+package: B
+version: 1
+installed: true
+depends:
+conflicts:
+provides:
+
+package: B
+version: 2
+installed: false
+depends:
+conflicts:
+provides:
+
+package: C
+version: 1
+installed: false
+depends:
+conflicts:
+provides:
+
+package: C
+version: 2
+installed: true
+depends:
+conflicts:
+provides:
+
+request:
+install: A = 1, C = 1
+remove:
+upgrade:
