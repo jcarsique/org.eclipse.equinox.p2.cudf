@@ -13,11 +13,15 @@
     </layout>
   </appender>
 
+  <logger name="org.eclipse.equinox.p2.cudf.tests">
+    <level value="INFO" />
+  </logger>
+
   <!-- ======================= -->
   <!-- Setup the Root category -->
   <!-- ======================= -->
   <root>
-    <priority value="INFO" />
+    <priority value="WARN" />
     <appender-ref ref="CONSOLE" />
   </root>
 

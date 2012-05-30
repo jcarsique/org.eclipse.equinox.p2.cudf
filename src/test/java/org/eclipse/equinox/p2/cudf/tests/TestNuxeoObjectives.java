@@ -9,8 +9,8 @@ import org.eclipse.equinox.p2.cudf.metadata.InstallableUnit;
 import org.eclipse.equinox.p2.cudf.solver.OptimizationFunction.Criteria;
 import org.eclipse.equinox.p2.cudf.solver.*;
 
-public class TestNuxeoExample extends TestCase {
-    private static final Log log = LogFactory.getLog(TestNuxeoExample.class);
+public class TestNuxeoObjectives extends TestCase {
+    private static final Log log = LogFactory.getLog(TestNuxeoObjectives.class);
 
     private ProfileChangeRequest pcr = null;
 
@@ -34,51 +34,54 @@ public class TestNuxeoExample extends TestCase {
     public void testParanoid() throws Exception {
         if (false)
             return; // not interesting solution
-        log.info("PARANOID (false, false)");
+        log.info("\n" + new Object() {
+        }.getClass().getEnclosingMethod().getName() + " (false, false)");
         solution = getSolution(SolverConfiguration.OBJ_PARANOID, false, false);
         solution = getBestSolution();
         /*
-         * [B 1, A 1, D 1, E 1]
-         * {NEW=[], CHANGED=[B, C, D, E], RECOMMENDED=[], REMOVED=[C],
-         * VERSION_CHANGED=[], NOTUPTODATE=[]}
+         * [A 1, B 1, D 1, E 1]
+         * {CHANGED=[B, C, D, E], VERSION_CHANGED=[], NOTUPTODATE=[], NEW=[],
+         * RECOMMENDED=[], REMOVED=[C]}
          */
 
-        log.info("PARANOID (true, true)");
+        log.info("\n" + new Object() {
+        }.getClass().getEnclosingMethod().getName() + " (true, true)");
         solution = getSolution(SolverConfiguration.OBJ_PARANOID, true, true);
         solution = getBestSolution();
         /*
-         * [B 1, A 1, B 2, D 1, E 2]
-         * {NOTUPTODATE=[], RECOMMENDED=[], NEW=[], REMOVED=[C],
-         * VERSION_CHANGED=[],
-         * CHANGED=[B, C, D, E]}
+         * [A 1, B 1, D 1, E 1]
+         * {CHANGED=[B, C, D, E], VERSION_CHANGED=[], NOTUPTODATE=[], NEW=[],
+         * RECOMMENDED=[], REMOVED=[C]}
          */
     }
 
     public void testTrendy() throws Exception {
         if (false)
             return; // not interesting solution
-        log.info("TRENDY (false, false)");
+        log.info("\n" + new Object() {
+        }.getClass().getEnclosingMethod().getName() + " (false, false)");
         solution = getSolution(SolverConfiguration.OBJ_TRENDY, false, false);
         solution = getBestSolution();
         /*
-         * [B 1, A 1, A 2, B 2, D 1, D 2, E 2]
-         * {NEW=[B, D, E], CHANGED=[], RECOMMENDED=[], REMOVED=[C],
-         * VERSION_CHANGED=[], NOTUPTODATE=[]}
+         * [A 2, B 1, D 1, E 1]
+         * {CHANGED=[], VERSION_CHANGED=[], NOTUPTODATE=[B, D, E], NEW=[B, D,
+         * E], RECOMMENDED=[], REMOVED=[C]}
          */
 
-        log.info("TRENDY (true, true)");
+        log.info("\n" + new Object() {
+        }.getClass().getEnclosingMethod().getName() + " (true, true)");
         solution = getSolution(SolverConfiguration.OBJ_TRENDY, true, true);
         solution = getBestSolution();
         /*
-         * [B 1, A 1, A 2, B 2, D 1, D 2, E 2]
-         * {NOTUPTODATE=[], RECOMMENDED=[], NEW=[B, D, E], REMOVED=[C],
-         * VERSION_CHANGED=[], CHANGED=[]}
-         * Wrong solution: D1 was asked for install, not D2
+         * [A 2, B 1, D 1, E 1]
+         * {CHANGED=[A, B, C, D, E], VERSION_CHANGED=[A], NOTUPTODATE=[B, D, E],
+         * NEW=[B, D, E], RECOMMENDED=[], REMOVED=[C]}
          */
     }
 
     public void testAllCriteria() throws Exception {
-        log.info("ALL (false, false)");
+        log.info("\n" + new Object() {
+        }.getClass().getEnclosingMethod().getName() + " (false, false)");
         solution = getSolution(SolverConfiguration.OBJ_ALL_CRITERIA, false,
                 false);
         // TODO: complete
@@ -87,16 +90,17 @@ public class TestNuxeoExample extends TestCase {
 
         solution = getBestSolution();
         /*
-         * [B 1, A 1, A 2, B 2, D 1, D 2, E 2]
-         * {NEW=[B, D, E], CHANGED=[A, B, C, D, E], RECOMMENDED=[], REMOVED=[C],
-         * VERSION_CHANGED=[A], NOTUPTODATE=[]}
+         * [A 1, B 1, D 1, E 1]
+         * {CHANGED=[A, B, C, D, E], VERSION_CHANGED=[A], NOTUPTODATE=[B, D, E],
+         * NEW=[B, D, E], RECOMMENDED=[], REMOVED=[C]}
          */
 
         // TODO: complete
         // check solution.size()
         // check getIU(solution, "A").getVersion().getMajor()
 
-        log.info("ALL (true, true)");
+        log.info("\n" + new Object() {
+        }.getClass().getEnclosingMethod().getName() + " (true, true)");
         solution = getSolution(SolverConfiguration.OBJ_ALL_CRITERIA, true, true);
         // TODO: complete
         // check solution.size()
@@ -104,11 +108,9 @@ public class TestNuxeoExample extends TestCase {
 
         solution = getBestSolution();
         /*
-         * [B 1, A 1, B 2, D 1, D 2, E 1]
-         * {NOTUPTODATE=[], RECOMMENDED=[], NEW=[B, D, E], REMOVED=[C],
-         * VERSION_CHANGED=[A], CHANGED=[A, B, C, D, E]}
-         * Wrong information: A version didn't change
-         * Wrong solution: D1 was asked but got D1 or D2 and only E1
+         * [A 1, B 1, D 1, E 1]
+         * {CHANGED=[A, B, C, D, E], VERSION_CHANGED=[A], NOTUPTODATE=[B, D, E],
+         * NEW=[B, D, E], RECOMMENDED=[], REMOVED=[C]}
          */
 
         // TODO: complete
@@ -117,35 +119,41 @@ public class TestNuxeoExample extends TestCase {
     }
 
     public void testCustom() throws Exception {
-        log.info("CUSTOM (false, false)");
-        solution = getSolution("-removed,-new,-changed", false, false);
+        log.info("\n" + new Object() {
+        }.getClass().getEnclosingMethod().getName() + " (false, false)");
+        // -removed,-notuptodate,-unsat_recommends,-new,-changed,-versionchanged
+        solution = getSolution(
+                "-removed,-new,-versionchanged,-notuptodate,-unsat_recommends,-changed",
+                false, false);
         // TODO: complete
         // check solution.size()
         // check getIU(solution, "A").getVersion().getMajor()
 
         solution = getBestSolution();
         /*
-         * [B 1, A 1, D 1, E 1]
-         * {NEW=[B, D, E], CHANGED=[B, C, D, E], RECOMMENDED=[], REMOVED=[C],
-         * VERSION_CHANGED=[], NOTUPTODATE=[]}
+         * [A 1, B 1, D 1, E 1]
+         * {CHANGED=[B, C, D, E], VERSION_CHANGED=[], NOTUPTODATE=[A, B, D, E],
+         * NEW=[B, D, E], RECOMMENDED=[], REMOVED=[C]}
          */
 
         // TODO: complete
         // check solution.size()
         // check getIU(solution, "A").getVersion().getMajor()
 
-        log.info("CUSTOM (true, true)");
-        solution = getSolution("-removed,-new,-changed", true, true);
+        log.info("\n" + new Object() {
+        }.getClass().getEnclosingMethod().getName() + " (true, true)");
+        solution = getSolution(
+                "-removed,-new,-versionchanged,-notuptodate,-unsat_recommends,-changed",
+                true, true);
         // TODO: complete
         // check solution.size()
         // check getIU(solution, "A").getVersion().getMajor()
 
         solution = getBestSolution();
         /*
-         * [B 1, A 1, B 2, D 1, E 2]
-         * {NOTUPTODATE=[], RECOMMENDED=[], NEW=[B, D, E], REMOVED=[C],
-         * VERSION_CHANGED=[], CHANGED=[B, C, D, E]}
-         * Interesting solution. What means B1, A1, B2 in the solution?
+         * [A 1, B 1, D 1, E 1]
+         * {CHANGED=[B, C, D, E], VERSION_CHANGED=[], NOTUPTODATE=[A, B, D, E],
+         * NEW=[B, D, E], RECOMMENDED=[], REMOVED=[C]}
          */
 
         // TODO: complete

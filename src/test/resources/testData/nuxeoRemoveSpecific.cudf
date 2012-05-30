@@ -86,6 +86,6 @@ depends: B = 3
 conflicts: E != 3
 
 request:
-install: D = 2, E
-remove:
+install:
+remove: A = 2
 upgrade:
