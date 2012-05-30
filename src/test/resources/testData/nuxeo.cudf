@@ -1,53 +1,56 @@
 package: A
 version: 1
-installed: false
-depends: B, C
-conflicts: NA
-provides:
+installed: true
 
 package: A
 version: 2
 installed: false
-depends: B, C
-conflicts: NA
-provides:
-
-package: NA
-version: 1
-installed: false
-depends:
-conflicts: A
-provides:
 
 package: B
 version: 1
-installed: true
-depends:
-conflicts:
-provides:
+installed: false
+depends: A
+conflicts: C
 
 package: B
 version: 2
 installed: false
-depends:
-conflicts:
-provides:
+depends: A
+conflicts: C
 
 package: C
 version: 1
-installed: false
-depends:
-conflicts:
-provides:
+installed: true
+depends: A
+conflicts: B
 
 package: C
 version: 2
-installed: true
-depends:
-conflicts:
-provides:
+installed: false
+depends: A
+conflicts: B
+
+package: D
+version: 1
+installed: false
+depends: B = 1
+
+package: D
+version: 2
+installed: false
+depends: B = 2
+
+package: E
+version: 1
+installed: false
+depends: B = 1
+
+package: E
+version: 2
+installed: false
+depends: B = 2
 
 request:
-install: A = 1, C = 1
+install: D = 1, E
 remove:
 upgrade:
