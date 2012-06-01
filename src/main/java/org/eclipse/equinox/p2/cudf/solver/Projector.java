@@ -389,7 +389,7 @@ public class Projector {
             @SuppressWarnings("rawtypes")
             Map.Entry entry = (Map.Entry) iterator.next();
             @SuppressWarnings("rawtypes")
-            Map conflictingEntries = (HashMap) entry.getValue();
+            Map conflictingEntries = (Map) entry.getValue();
             if (conflictingEntries.size() < 2)
                 continue;
 

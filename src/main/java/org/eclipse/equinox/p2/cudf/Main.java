@@ -290,7 +290,7 @@ public class Main {
         return null;
     }
 
-    static void printSolution(Collection<InstallableUnit> state,
+    static public void printSolution(Collection<InstallableUnit> state,
             Options theOptions) {
         if (theOptions.sort) {
             List<InstallableUnit> tmp = new ArrayList<InstallableUnit>(state);

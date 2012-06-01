@@ -93,7 +93,7 @@ public abstract class OptimizationFunction {
             Map.Entry entry = (Map.Entry) iterator.next();
             if (entry.getKey() == metaIu.getId())
                 continue;
-            Collection<?> versions = ((HashMap<?, ?>) entry.getValue()).values();
+            Collection<?> versions = ((Map<?, ?>) entry.getValue()).values();
             boolean installed = false;
             Object[] literals = new Object[versions.size()];
             int i = 0;
@@ -128,7 +128,7 @@ public abstract class OptimizationFunction {
             Map.Entry entry = (Map.Entry) iterator.next();
             if (entry.getKey() == metaIu.getId())
                 continue;
-            Collection<?> versions = ((HashMap<?, ?>) entry.getValue()).values();
+            Collection<?> versions = ((Map<?, ?>) entry.getValue()).values();
             boolean installed = false;
             IVec<InstallableUnit> changed = new Vec<InstallableUnit>(
                     versions.size());
@@ -166,7 +166,7 @@ public abstract class OptimizationFunction {
             Map.Entry entry = (Map.Entry) iterator.next();
             if (entry.getKey() == metaIu.getId())
                 continue;
-            Collection<?> versions = ((HashMap<?, ?>) entry.getValue()).values();
+            Collection<?> versions = ((Map<?, ?>) entry.getValue()).values();
             Object[] changed = new Object[versions.size()];
             int i = 0;
             for (Iterator<?> iterator2 = versions.iterator(); iterator2.hasNext();) {
@@ -198,7 +198,7 @@ public abstract class OptimizationFunction {
             if (entry.getKey() == metaIu.getId())
                 continue;
             @SuppressWarnings("rawtypes")
-            HashMap versions = (HashMap) entry.getValue();
+            Map versions = (Map) entry.getValue();
             @SuppressWarnings("unchecked")
             List<InstallableUnit> toSort = new ArrayList<InstallableUnit>(
                     versions.values());
@@ -217,7 +217,7 @@ public abstract class OptimizationFunction {
             if (entry.getKey() == metaIu.getId())
                 continue;
             @SuppressWarnings("rawtypes")
-            HashMap versions = (HashMap) entry.getValue();
+            Map versions = (Map) entry.getValue();
             @SuppressWarnings("unchecked")
             List<AbstractVariable> toSort = new ArrayList<AbstractVariable>(
                     versions.values());
@@ -282,7 +282,7 @@ public abstract class OptimizationFunction {
             if (entry.getKey() == metaIu.getId())
                 continue;
             @SuppressWarnings({ "rawtypes", "unchecked" })
-            Collection<InstallableUnit> versions = ((HashMap) entry.getValue()).values();
+            Collection<InstallableUnit> versions = ((Map) entry.getValue()).values();
             boolean installed = false;
             for (Iterator<InstallableUnit> iterator2 = versions.iterator(); iterator2.hasNext();) {
                 InstallableUnit iuv = iterator2.next();
@@ -329,7 +329,7 @@ public abstract class OptimizationFunction {
             if (entry.getKey() == metaIu.getId())
                 continue;
             @SuppressWarnings("rawtypes")
-            Collection versions = ((HashMap) entry.getValue()).values();
+            Collection versions = ((Map) entry.getValue()).values();
             for (@SuppressWarnings("unchecked")
             Iterator<InstallableUnit> iterator2 = versions.iterator(); iterator2.hasNext();) {
                 InstallableUnit iuv = iterator2.next();

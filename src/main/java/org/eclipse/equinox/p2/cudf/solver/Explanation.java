@@ -169,12 +169,11 @@ public abstract class Explanation implements Comparable<Explanation> {
         super();
     }
 
-    public int compareTo(Explanation arg0) {
-        Explanation exp = arg0;
-        if (this.orderValue() == exp.orderValue()) {
-            return this.toString().compareTo(exp.toString());
+    public int compareTo(Explanation other) {
+        if (this.orderValue() == other.orderValue()) {
+            return this.toString().compareTo(other.toString());
         }
-        return this.orderValue() - exp.orderValue();
+        return this.orderValue() - other.orderValue();
     }
 
     protected abstract int orderValue();

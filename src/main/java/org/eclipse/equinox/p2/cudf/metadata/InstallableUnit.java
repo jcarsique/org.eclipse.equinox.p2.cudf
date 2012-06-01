@@ -40,11 +40,11 @@ public class InstallableUnit extends AbstractVariable implements
         super();
     }
 
-    public int compareTo(InstallableUnit toCompareTo) {
-        InstallableUnit other = toCompareTo;
-        if (getId().compareTo(other.getId()) == 0)
-            return (getVersion().compareTo(other.getVersion()));
-        return getId().compareTo(other.getId());
+    public int compareTo(InstallableUnit other) {
+        // id and version are never null?
+        if (id.compareTo(other.getId()) == 0)
+            return (version.compareTo(other.getVersion()));
+        return id.compareTo(other.getId());
     }
 
     public String getId() {
@@ -54,22 +54,19 @@ public class InstallableUnit extends AbstractVariable implements
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (obj == null)
+        if (obj == null || !(obj instanceof InstallableUnit)) {
             return false;
-        if (!(obj instanceof InstallableUnit))
-            return false;
+        }
         final InstallableUnit other = (InstallableUnit) obj;
-        if (id == null) {
-            if (other.getId() != null)
-                return false;
-        } else if (!id.equals(other.getId()))
+        if (id == null && other.getId() != null
+                || (id != null && !id.equals(other.getId()))) {
             return false;
-        if (getVersion() == null) {
-            if (other.getVersion() != null)
-                return false;
-        } else if (!getVersion().equals(other.getVersion()))
-            return false;
-        return true;
+        }
+        if (version == null) {
+            return (other.getVersion() == null);
+        } else {
+            return (version.equals(other.getVersion()));
+        }
     }
 
     public IProvidedCapability[] getProvidedCapabilities() {
