@@ -52,7 +52,7 @@
 
   <groupId>org.eclipse.equinox</groupId>
   <artifactId>org.eclipse.equinox.p2.cudf</artifactId>
-  <version>1.15-NX</version>
+  <version>1.16-NX-SNAPSHOT</version>
 
   <organization>
     <name>Eclipse</name>
