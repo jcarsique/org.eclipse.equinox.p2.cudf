@@ -102,8 +102,6 @@
           <artifactId>org.eclipse.equinox.common</artifactId>
         </exclusion>
       </exclusions>
-      <!-- Only needed if using org.eclipse.equinox.p2.cudf.solver.SimplePlanner.getExplanation() -->
-      <optional>true</optional>
     </dependency>
     <!-- Exclude unneeded org.eclipse.osgi dependency -->
     <dependency>
