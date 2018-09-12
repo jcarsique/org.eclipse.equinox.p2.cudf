@@ -33,7 +33,7 @@ See [MISC optimization criteria](http://www.mancoosi.org/misc-live/20101126/crit
 
 ## QA results
 
-[![Build Status](https://qa.nuxeo.org/jenkins/buildStatus/icon?job=org.eclipse.equinox.p2.cudf-master)](https://qa.nuxeo.org/jenkins/job/org.eclipse.equinox.p2.cudf-master/)
+[![Build Status](https://qa.nuxeo.org/jenkins/buildStatus/icon?job=Vendor/org.eclipse.equinox.p2.cudf-master)](https://qa.nuxeo.org/jenkins/job/Vendor/job/org.eclipse.equinox.p2.cudf-master/)
 
 # About Nuxeo
 
